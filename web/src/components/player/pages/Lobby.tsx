@@ -71,61 +71,65 @@ export const Lobby = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 lg:gap-10 w-full max-w-md mx-auto">
-      <div className="flex flex-col place-items-center justify-center text-slate-800 p-6 bg-white rounded border border-slate-200 shadow-xl">
-        <p className="font-medium text-slate-500 text-sm uppercase tracking-wider mb-2">Jūs esat pievienojušies spēlei</p>
-        <p className="font-extrabold text-2xl sm:text-3xl text-center text-[#E812FF]">{gameTitle}</p>
-      </div>
+    <div className="w-full min-h-[calc(100dvh-2rem)] flex items-center justify-center">
+      <div className="w-full max-w-md rounded-2xl border border-white/55 bg-white/45 backdrop-blur-md shadow-[0_20px_45px_rgba(15,23,42,0.16)] p-4 sm:p-5">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col place-items-center justify-center text-slate-800 p-6 bg-white/88 rounded-xl border border-white/70 shadow-lg">
+            <p className="font-medium text-slate-500 text-sm uppercase tracking-wider mb-2">Jūs esat pievienojušies spēlei</p>
+            <p className="font-extrabold text-2xl sm:text-3xl text-center text-[#E812FF]">{gameTitle}</p>
+          </div>
 
-      <div className="flex flex-col gap-6 p-6 sm:p-8 bg-white rounded border border-slate-200 shadow-xl">
-        <div className="flex flex-col gap-3">
-          <label
-            htmlFor="playername"
-            className="font-semibold text-slate-700 text-sm"
-          >
-            Lūdzu, ievadiet spēlētāja nosaukumu:
-          </label>
-          <input
-            disabled={isReady}
-            id="playername"
-            className="w-full h-14 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 rounded px-4 text-center text-xl focus:outline-none focus:ring-2 focus:ring-[#E812FF] focus:border-transparent transition-all disabled:opacity-75 disabled:cursor-not-allowed"
-            placeholder="Pēteris"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
-        </div>
-
-        <div className="flex justify-center mt-2">
-          {!isReady && !isLoading && (
-            <button
-              onClick={readyPlayer}
-              className={`w-full h-14 rounded text-xl font-bold flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F9A09] focus:ring-offset-2 ${
-                !!playerName.length
-                  ? "bg-[#0F9A09] text-white hover:brightness-95 shadow-lg"
-                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
-              }`}
-            >
-              Gatavs spēlei
-            </button>
-          )}
-          {isLoading && (
-            <button className="w-full h-14 rounded text-xl font-bold text-white bg-[#0F9A09] flex items-center justify-center cursor-not-allowed opacity-80">
-              <SpinnerCircularFixed color="#ffffff" size={28} thickness={160} />
-            </button>
-          )}
-          {isReady && (
-            <div className="w-full flex justify-center items-center h-14 rounded bg-[#91FF00]/20 text-[#0F9A09] border border-[#91FF00]/50 font-bold gap-3">
-              <SpinnerCircularFixed color="#0F9A09" size={24} thickness={160} />
-              Gaidām pārējos...
+          <div className="flex flex-col gap-6 p-6 sm:p-8 bg-white/88 rounded-xl border border-white/70 shadow-lg">
+            <div className="flex flex-col gap-3">
+              <label
+                htmlFor="playername"
+                className="font-semibold text-slate-700 text-sm"
+              >
+                Lūdzu, ievadiet spēlētāja nosaukumu:
+              </label>
+              <input
+                disabled={isReady}
+                id="playername"
+                className="w-full h-14 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 rounded px-4 text-center text-xl focus:outline-none focus:ring-2 focus:ring-[#E812FF] focus:border-transparent transition-all disabled:opacity-75 disabled:cursor-not-allowed"
+                placeholder="Pēteris"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+              />
             </div>
-          )}
-        </div>
 
-        {error && (
-          <p className="text-center font-medium py-2 px-4 rounded bg-[#F0EDCA] text-[#0F9A09] border border-[#E812FF]/40">
-            {error}
-          </p>
-        )}
+            <div className="flex justify-center mt-2">
+              {!isReady && !isLoading && (
+                <button
+                  onClick={readyPlayer}
+                  className={`w-full h-14 rounded text-xl font-bold flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F9A09] focus:ring-offset-2 ${
+                    !!playerName.length
+                      ? "bg-[#0F9A09] text-white hover:brightness-95 shadow-lg"
+                      : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                  }`}
+                >
+                  Gatavs spēlei
+                </button>
+              )}
+              {isLoading && (
+                <button className="w-full h-14 rounded text-xl font-bold text-white bg-[#0F9A09] flex items-center justify-center cursor-not-allowed opacity-80">
+                  <SpinnerCircularFixed color="#ffffff" size={28} thickness={160} />
+                </button>
+              )}
+              {isReady && (
+                <div className="w-full flex justify-center items-center h-14 rounded bg-[#91FF00]/20 text-[#0F9A09] border border-[#91FF00]/50 font-bold gap-3">
+                  <SpinnerCircularFixed color="#0F9A09" size={24} thickness={160} />
+                  Gaidām pārējos...
+                </div>
+              )}
+            </div>
+
+            {error && (
+              <p className="text-center font-medium py-2 px-4 rounded bg-[#F0EDCA] text-[#0F9A09] border border-[#E812FF]/40">
+                {error}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

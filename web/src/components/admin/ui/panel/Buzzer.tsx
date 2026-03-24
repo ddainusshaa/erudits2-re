@@ -4,7 +4,7 @@ export const Buzzer = () => {
   const { buzzedPlayer } = useBuzzer();
 
   return (
-    <div className="flex min-h-[100dvh] flex-col w-full bg-slate-900 justify-center items-center text-slate-100 p-4">
+    <div className="app-theme-bg flex min-h-[100dvh] flex-col w-full justify-center items-center text-slate-900 p-4">
       <div className="place-self-center grow  w-full flex place-items-center justify-center">
         {buzzedPlayer.title && (
           <p

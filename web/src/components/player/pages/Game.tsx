@@ -8,16 +8,35 @@ import { SpinnerCircularFixed } from "spinners-react";
 export const Game = () => {
   const { round, isBuzzerMode } = usePlayer();
   const [showGame, setShowGame] = useState(false);
+  const [animateDoors, setAnimateDoors] = useState(false);
+
+  // The starting state determines if the doors should be open or closed
+  const isStarting = !!round || isBuzzerMode;
 
   useEffect(() => {
-    if (round || isBuzzerMode) {
+    if (isStarting) {
       const timeout = setTimeout(() => {
         setShowGame(true);
       }, 2000);
 
       return () => clearTimeout(timeout); // Cleanup timeout on unmount
     }
-  }, [round, isBuzzerMode]);
+  }, [isStarting]);
+
+  useEffect(() => {
+    if (!isStarting) {
+      setAnimateDoors(false);
+      return;
+    }
+
+    // Render closed first, then animate open on next frame.
+    setAnimateDoors(false);
+    const frame = requestAnimationFrame(() => {
+      setAnimateDoors(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [isStarting]);
 
   // If we're fully loaded and finished animating
   if (showGame) {
@@ -30,50 +49,52 @@ export const Game = () => {
     return <GameView />;
   }
 
-  // The starting state determines if the doors should be open or closed
-  const isStarting = !!round || isBuzzerMode;
+  if (!isStarting) {
+    return (
+      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center px-4 text-center">
+        <img
+          src="/GvG.png"
+          alt="Game logo"
+          className="w-[220px] sm:w-[280px] md:w-[340px] h-auto object-contain"
+        />
+        <h2 className="mt-6 text-xl sm:text-2xl font-bold text-[#0F9A09] tracking-wide">
+          Gaidām spēles sākumu
+        </h2>
+        <p className="text-slate-700 mt-3 text-sm sm:text-base">
+          Lūdzu, uzgaidiet, kamēr vadītājs uzsāks spēli
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full min-h-[100dvh] app-theme-bg overflow-hidden flex flex-col justify-center items-center">
-      
-      {/* Dynamic Background for Loading - Optional but nice */}
-      <div className="absolute inset-0 z-0 pointer-events-none"></div>
+    <div className="relative w-full min-h-[100dvh] bg-[#F0EDCA] overflow-hidden flex flex-col justify-center items-center">
+      <SpinnerCircularFixed size={44} thickness={150} color="#0F9A09" className="z-10" />
 
-      {/* The Split Screen overlay area */}
-      <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none overflow-hidden text-center">
-        
-        {/* Left Door */}
-        <div 
-          className={`absolute top-0 left-0 w-1/2 h-full bg-[#F0EDCA] flex items-center justify-end overflow-hidden transition-transform duration-[1500ms] ease-in-out ${
-            isStarting ? '-translate-x-full' : 'translate-x-0'
-          }`}
-        >
-          {/* Logo container placed to overlap in the center */}
-          <div className="h-48 sm:h-64 md:h-80 lg:h-96 flex items-center relative translate-x-[2px]">
-            <img src="/GvG-left.png" alt="Left Logo" className="h-full object-contain" />
+      {/* Keep the door animation only while transitioning into game/buzzer. */}
+      {isStarting && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none overflow-hidden text-center">
+          <div
+            className={`absolute top-0 left-0 w-1/2 h-full bg-[#F0EDCA] flex items-center justify-end overflow-hidden transition-transform duration-[1500ms] ease-in-out ${
+              animateDoors ? '-translate-x-full' : 'translate-x-0'
+            }`}
+          >
+            <div className="h-48 sm:h-64 md:h-80 lg:h-96 flex items-center relative translate-x-[2px]">
+              <img src="/GvG-left.png" alt="Left Logo" className="h-full object-contain" />
+            </div>
+          </div>
+
+          <div
+            className={`absolute top-0 right-0 w-1/2 h-full bg-[#F0EDCA] flex items-center justify-start overflow-hidden transition-transform duration-[1500ms] ease-in-out ${
+              animateDoors ? 'translate-x-full' : 'translate-x-0'
+            }`}
+          >
+            <div className="h-48 sm:h-64 md:h-80 lg:h-96 flex items-center relative -translate-x-[2px]">
+              <img src="/GvG-right.png" alt="Right Logo" className="h-full object-contain" />
+            </div>
           </div>
         </div>
-
-        {/* Right Door */}
-        <div 
-          className={`absolute top-0 right-0 w-1/2 h-full bg-[#F0EDCA] flex items-center justify-start overflow-hidden transition-transform duration-[1500ms] ease-in-out ${
-            isStarting ? 'translate-x-full' : 'translate-x-0'
-          }`}
-        >
-          {/* Logo container placed to overlap in the center */}
-          <div className="h-48 sm:h-64 md:h-80 lg:h-96 flex items-center relative -translate-x-[2px]">
-            <img src="/GvG-right.png" alt="Right Logo" className="h-full object-contain" />
-          </div>
-        </div>
-
-        {/* The Text / Loading state that sits behind or in front of the door in the center */}
-        <div className={`absolute bottom-16 sm:bottom-24 w-full flex flex-col items-center justify-center transition-opacity duration-1000 ${isStarting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#0F9A09] mb-4 tracking-widest uppercase drop-shadow-md">Gaidām spēles sākumu</h2>
-            <SpinnerCircularFixed size={48} thickness={150} color="#0F9A09" className="mx-auto" />
-            <p className="text-slate-600 mt-4 text-sm sm:text-base">Uzgaidiet, kamēr vadītājs uzsāks spēli</p>
-        </div>
-
-      </div>
+      )}
     </div>
   );
 };

@@ -19,7 +19,7 @@ export const AdminGameTable = ({
         </li>
         {!games && (
           <div className="mx-auto">
-            <SpinnerCircularFixed color="#ffffff" size={40} thickness={150} />
+            <SpinnerCircularFixed color="#0F9A09" size={40} thickness={150} />
           </div>
         )}
         {games &&

@@ -13,7 +13,6 @@ interface IPlayerStorage {
 export const LandingPage = () => {
   const accentMagenta = "#E812FF";
   const accentGreen = "#0F9A09";
-  const accentLime = "#91FF00";
   const accentSand = "#F0EDCA";
 
   const [code, setCode] = useState("");
@@ -62,7 +61,7 @@ export const LandingPage = () => {
 
     const trimmedCode = joinCode.trim().toUpperCase();
     if (trimmedCode.length < 3) {
-      setError("Ludzu ievadiet derigu kodu");
+      setError("Lūdzu ievadiet derīgu kodu");
       setIsLoading(false);
       return;
     }
@@ -86,7 +85,7 @@ export const LandingPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data?.error ?? "Neizdevas pievienoties spelei");
+        setError(data?.error ?? "Neizdevās pievienoties spēlei");
         setIsLoading(false);
         return;
       }
@@ -102,7 +101,7 @@ export const LandingPage = () => {
 
       navigate("/play/lobby");
     } catch {
-      setError("Kluda, meginiet velreiz");
+      setError("Kļūda, mēģiniet vēlreiz");
     }
 
     setIsLoading(false);
@@ -123,44 +122,7 @@ export const LandingPage = () => {
   };
 
   return (
-    <div className="flex min-h-[100dvh] w-full bg-[#f4f7fa] items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-8 -left-10 w-44 h-44 rotate-[28deg]" style={{ backgroundColor: accentLime }}></div>
-        <div
-          className="absolute -top-16 -left-24 w-64 h-64"
-          style={{
-            backgroundImage: `repeating-linear-gradient(150deg, transparent 0 9px, ${accentGreen} 9px 11px)`,
-            opacity: 0.65,
-          }}
-        ></div>
-
-        <div className="absolute -bottom-12 -right-10 w-48 h-48 rotate-[16deg]" style={{ backgroundColor: accentMagenta }}></div>
-        <div
-          className="absolute -bottom-10 -right-10 w-56 h-56"
-          style={{
-            backgroundImage: `repeating-linear-gradient(140deg, transparent 0 10px, ${accentGreen} 10px 12px)`,
-            opacity: 0.6,
-          }}
-        ></div>
-
-        <div className="absolute top-[14%] right-[15%] w-8 h-8 rounded-full" style={{ backgroundColor: accentMagenta }}></div>
-        <div className="absolute top-[17%] right-[10%] w-4 h-4 rounded-full" style={{ backgroundColor: accentSand }}></div>
-        <div className="absolute top-[9%] left-[16%] w-7 h-7 rounded-full" style={{ backgroundColor: accentGreen }}></div>
-        <div className="absolute bottom-[12%] left-[18%] w-9 h-9 rounded-full" style={{ backgroundColor: accentLime, opacity: 0.35 }}></div>
-        <div className="absolute bottom-[14%] right-[32%] w-7 h-7 rounded-full" style={{ backgroundColor: accentSand }}></div>
-
-        <div className="absolute top-[24%] left-[25%] w-24 h-24 rotate-[28deg]" style={{ backgroundColor: accentMagenta, opacity: 0.2 }}></div>
-        <div className="absolute top-[22%] right-[28%] w-24 h-24 rotate-[30deg]" style={{ backgroundColor: accentLime, opacity: 0.18 }}></div>
-        <div className="absolute bottom-[25%] left-[24%] w-28 h-28 rotate-[30deg]" style={{ backgroundColor: accentSand, opacity: 0.5 }}></div>
-
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 20% 20%, ${accentSand}66 0%, transparent 35%), radial-gradient(circle at 80% 75%, ${accentLime}33 0%, transparent 35%), radial-gradient(circle at 52% 40%, ${accentMagenta}22 0%, transparent 45%)`,
-          }}
-        ></div>
-      </div>
-
+    <div className="app-theme-bg flex min-h-[100dvh] w-full items-center justify-center p-4 font-sans">
       {!!existingGameCode && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
           <div className="bg-white border-l-4 shadow-md rounded p-4 flex flex-col sm:flex-row items-center gap-4 w-full" style={{ borderColor: accentMagenta }}>
@@ -169,8 +131,8 @@ export const LandingPage = () => {
                 <i className="fa-solid fa-circle-info text-sm"></i>
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-slate-800 text-sm">Aktiva spele</p>
-                <p className="text-slate-500 text-xs mt-0.5">Jums ir iesakta sesija</p>
+                <p className="font-semibold text-slate-800 text-sm">Aktīva spēle</p>
+                <p className="text-slate-500 text-xs mt-0.5">Jums ir iesākta sesija</p>
               </div>
             </div>
             <button
@@ -184,37 +146,32 @@ export const LandingPage = () => {
         </div>
       )}
 
-      <main className="w-full max-w-[26rem] z-10 flex flex-col items-center gap-3">
-        <img
-          src="/GvG.png"
-          alt="Game logo"
-          className="w-[220px] sm:w-[260px] md:w-[300px] h-auto max-w-full object-contain"
-        />
+      <main className="w-full max-w-[26rem] z-10">
+        <div className="w-full rounded-2xl border border-white/40 bg-white/28 backdrop-blur-lg shadow-[0_18px_40px_rgba(15,23,42,0.12)] p-4 sm:p-5">
+          <div className="flex flex-col items-center gap-3">
+            <img
+              src="/GvG.png"
+              alt="Game logo"
+              className="w-[220px] sm:w-[260px] md:w-[300px] h-auto max-w-full object-contain"
+            />
 
-        <div className="bg-white rounded shadow-xl border border-slate-100 overflow-hidden w-full relative">
-          <div className="absolute top-0 left-0 w-full h-[4px]" style={{ backgroundColor: accentSand }}></div>
+            <div className="bg-white/86 rounded-xl shadow-lg border border-white/70 overflow-hidden w-full relative">
 
-          <form onSubmit={handleJoin} className="px-8 py-7 flex flex-col gap-5">
+              <form onSubmit={handleJoin} className="px-8 py-7 flex flex-col gap-5">
             <div className="flex flex-col gap-1.5 w-full mt-1">
               <label
                 htmlFor="gameCode"
-                className="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                className="text-xs font-bold text-slate-800 uppercase tracking-widest"
               >
-                Speles Kods
+                Spēles kods
               </label>
               <div className="relative">
                 <input
                   id="gameCode"
                   placeholder="KODS..."
                   type="text"
-                  className="w-full h-12 bg-transparent border-0 border-b-2 border-slate-200 text-slate-800 placeholder-slate-300 text-xl tracking-[0.2em] font-bold uppercase focus:ring-0 transition-colors px-1"
+                  className="w-full h-12 bg-white/90 border border-slate-400 text-slate-950 placeholder-slate-700 rounded px-3 text-xl tracking-[0.2em] font-bold uppercase focus:outline-none focus:ring-2 focus:ring-[#E812FF] focus:border-transparent transition-all"
                   style={{ caretColor: accentGreen }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderBottomColor = accentMagenta;
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderBottomColor = "#e2e8f0";
-                  }}
                   value={code}
                   onChange={setCodeValue}
                   autoComplete="off"
@@ -224,7 +181,7 @@ export const LandingPage = () => {
 
             {!!error && (
               <div
-                className="w-full rounded text-sm px-3 py-2"
+                className="w-full rounded text-sm font-medium px-3 py-2"
                 style={{ backgroundColor: `${accentSand}99`, border: `1px solid ${accentMagenta}66`, color: accentGreen }}
               >
                 {error}
@@ -248,11 +205,13 @@ export const LandingPage = () => {
                   className="mr-2"
                 />
               ) : (
-                "Spelet"
+                "Spēlēt"
               )}
             </button>
 
-          </form>
+              </form>
+            </div>
+          </div>
         </div>
       </main>
     </div>

@@ -29,7 +29,7 @@ export const OpenAnswer = ({
 
   return (
     <div className="flex flex-col place-items-center justify-center gap-4 mx-auto h-[80%]">
-      <p className="text-white lg:text-2xl text-xl font-semibold">
+      <p className="text-slate-900 lg:text-2xl text-xl font-semibold">
         {guidelines}
       </p>
       <div>

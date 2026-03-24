@@ -1,6 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
 
 /* Force a scrollbar-free UI everywhere. */
 html,
@@ -350,7 +357,7 @@ body,
 .app-theme-bg {
   position: relative;
   overflow: hidden;
-  background-color: #f4f7fa;
+  background: linear-gradient(120deg, #f4f7fa 0%, #f2edf9 48%, #eef5ea 100%);
   isolation: isolate;
 }
 
@@ -358,13 +365,64 @@ body,
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 14% 10%, rgba(232, 18, 255, 0.12), transparent 40%),
-    radial-gradient(circle at 86% 14%, rgba(15, 154, 9, 0.12), transparent 40%),
-    radial-gradient(circle at 84% 88%, rgba(145, 255, 0, 0.12), transparent 40%),
-    radial-gradient(circle at 10% 84%, rgba(240, 237, 202, 0.35), transparent 44%),
-    repeating-linear-gradient(145deg, transparent 0 11px, rgba(15, 154, 9, 0.12) 11px 13px);
+    repeating-linear-gradient(150deg, transparent 0 9px, rgba(15, 154, 9, 0.16) 9px 11px),
+    repeating-linear-gradient(140deg, transparent 0 10px, rgba(15, 154, 9, 0.14) 10px 12px),
+    radial-gradient(circle at 20% 20%, rgba(240, 237, 202, 0.42), transparent 36%),
+    radial-gradient(circle at 80% 75%, rgba(145, 255, 0, 0.2), transparent 36%),
+    radial-gradient(circle at 52% 40%, rgba(232, 18, 255, 0.14), transparent 45%);
+  background-size: 320px 320px, 300px 300px, auto, auto, auto;
+  background-position: -130px -130px, calc(100% + 75px) calc(100% + 75px), center, center, center;
+}
+
+.app-theme-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(18deg, rgba(145, 255, 0, 0.82), rgba(145, 255, 0, 0.82)),
+    repeating-linear-gradient(145deg, rgba(15, 154, 9, 0.45) 0 2px, transparent 2px 8px),
+    linear-gradient(16deg, rgba(232, 18, 255, 0.72), rgba(232, 18, 255, 0.72)),
+    repeating-linear-gradient(145deg, rgba(15, 154, 9, 0.45) 0 2px, transparent 2px 8px),
+    linear-gradient(30deg, rgba(232, 18, 255, 0.13), rgba(232, 18, 255, 0.13)),
+    linear-gradient(30deg, rgba(145, 255, 0, 0.18), rgba(145, 255, 0, 0.18)),
+    linear-gradient(33deg, rgba(240, 237, 202, 0.35), rgba(240, 237, 202, 0.35)),
+    radial-gradient(circle at 84% 14%, rgba(232, 18, 255, 0.6) 0 4px, transparent 5px),
+    radial-gradient(circle at 90% 17%, rgba(240, 237, 202, 0.9) 0 3px, transparent 4px),
+    radial-gradient(circle at 16% 9%, rgba(15, 154, 9, 0.55) 0 4px, transparent 5px),
+    radial-gradient(circle at 18% 88%, rgba(145, 255, 0, 0.4) 0 5px, transparent 6px),
+    radial-gradient(circle at 68% 86%, rgba(240, 237, 202, 0.75) 0 4px, transparent 5px);
+  background-repeat: no-repeat;
+  background-size:
+    120px 120px,
+    140px 140px,
+    130px 130px,
+    150px 150px,
+    70px 70px,
+    70px 70px,
+    80px 80px,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto;
+  background-position:
+    -44px -44px,
+    -8px -8px,
+    calc(100% + 44px) calc(100% + 44px),
+    calc(100% - 8px) calc(100% - 8px),
+    24% 27%,
+    72% 24%,
+    24% 78%,
+    84% 14%,
+    90% 17%,
+    16% 9%,
+    18% 88%,
+    68% 86%;
 }
 
 .app-theme-content {

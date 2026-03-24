@@ -105,11 +105,12 @@ export const GameView = () => {
 
   if (roundFinished) {
     return (
-      <div className="flex place-items-center justify-center flex-col gap-4 fade-in-short">
-        <p className="text-slate-800 text-3xl font-bold">Atbilde iesniegta</p>
-        <div className="w-12 h-12 bg-white border-white border-4 rounded-full text-center">
-          <i className="fa-solid fa-check text-emerald-500 text-3xl mt-1"></i>
-        </div>
+      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center gap-4 fade-in-short text-center px-4">
+        <img
+          src="/GvG.png"
+          alt="Game logo"
+          className="w-[220px] sm:w-[280px] md:w-[340px] h-auto object-contain"
+        />
         <p className="text-slate-700 text-xl font-semibold">
           Lūdzu, gaidiet nākamo jautājumu
         </p>

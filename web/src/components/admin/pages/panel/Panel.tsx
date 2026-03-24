@@ -86,7 +86,7 @@ export const Panel = () => {
             className="px-5 py-2.5 rounded bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-slate-200"
           >
             <i className="fa-solid fa-arrow-left-long mr-2"></i>
-            Atpakal
+            Atpakaļ
           </button>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 text-center">

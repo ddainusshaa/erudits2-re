@@ -146,11 +146,15 @@ export const TestGameView = () => {
 
   if (roundFinished) {
     return (
-      <div className="flex place-items-center justify-center flex-col gap-4">
+      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center gap-4 text-center px-4">
+        <img
+          src="/GvG.png"
+          alt="Game logo"
+          className="w-[220px] sm:w-[280px] md:w-[340px] h-auto object-contain"
+        />
         <p className="text-slate-800 text-2xl font-semibold">
           Lūdzu, gaidiet nākamo kārtu!
         </p>
-        <SpinnerCircularFixed size={45} thickness={180} color="#0F9A09" />
       </div>
     );
   }
