@@ -184,11 +184,11 @@ export const LandingPage = () => {
         </div>
       )}
 
-      <main className="w-full max-w-[26rem] z-10 flex flex-col items-center gap-6">
+      <main className="w-full max-w-[26rem] z-10 flex flex-col items-center gap-3">
         <img
           src="/GvG.png"
           alt="Game logo"
-          className="w-[512px] h-[512px] max-w-full object-fill"
+          className="w-[220px] sm:w-[260px] md:w-[300px] h-auto max-w-full object-contain"
         />
 
         <div className="bg-white rounded shadow-xl border border-slate-100 overflow-hidden w-full relative">
