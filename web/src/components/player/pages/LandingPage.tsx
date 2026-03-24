@@ -186,7 +186,7 @@ export const LandingPage = () => {
 
       <main className="w-full max-w-[26rem] z-10 flex flex-col items-center gap-6">
         <img
-          src="/smigonis-zvana.gif"
+          src="/GvG.png"
           alt="Game logo"
           className="w-[512px] h-[512px] max-w-full object-fill"
         />
