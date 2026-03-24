@@ -1,0 +1,75 @@
+
+    const data = await response.json();
+    setVersion(data.version);
+  };
+
+  return (
+    <div className="flex min-h-[100dvh] w-full bg-slate-900 items-center justify-center p-4">
+      {!!existingGameCode && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
+          <div className="bg-slate-800 border border-slate-700 shadow-xl rounded p-4 flex flex-col sm:flex-row items-center gap-4 w-full">
+            <div className="flex-1 flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/20 text-blue-400">
+                <i className="fa-solid fa-circle-info text-sm"></i>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-white text-sm">Aktiva spele</p>
+                <p className="text-slate-400 text-xs">Jums ir iesakta sesija</p>
+              </div>
+            </div>
+            <button
+              onClick={handleJoinExisting}
+              className="whitespace-nowrap px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 w-full sm:w-auto"
+            >
+              Atgriezties
+            </button>
+          </div>
+        </div>
+      )}
+
+      <main className="w-full max-w-md flex flex-col gap-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+            Erudits <span className="text-blue-500">2</span>
+          </h1>
+          <p className="text-slate-400">Pievienojies spelei jau tagad</p>
+        </div>
+
+        <div className="bg-slate-800 rounded shadow-xl border border-slate-700 overflow-hidden">
+          <form onSubmit={handleJoin} className="p-6 sm:p-8 flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="gameCode" className="text-sm font-semibold text-slate-300">Speles Kods</label>
+              <input
+                id="gameCode"
+                placeholder="KODS..."
+                type="text"
+                className="w-full h-14 bg-slate-900 border border-slate-700 text-white placeholder-slate-500 rounded text-center text-xl tracking-[0.2em] font-bold uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                value={code}
+                onChange={setCodeValue}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-14 bg-blue-600 text-white rounded font-bold text-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {isLoading ? (
+                <SpinnerCircularFixed size={24} thickness={160} color="#ffffff" className="mr-2" />
+              ) : (
+                "Spelet"
+              )}
+            </button>
+          </form>
+          
+          <div className="bg-slate-800/80 px-6 py-4 border-t border-slate-700 flex justify-between items-center text-xs text-slate-500">
+            <span className="flex items-center gap-1.5 font-medium">
+              Drošs savienojums
+            </span>
+            {version && <span className="font-mono bg-slate-900 px-2 py-1 rounded text-slate-400">v{version}</span>}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
