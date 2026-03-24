@@ -1,1 +1,1 @@
-### erudīts v2.0
+### erudīts-re v2.0
