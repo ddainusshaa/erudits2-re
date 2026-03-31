@@ -31,6 +31,7 @@ interface IInstanceQuestion {
 interface IInstanceInfo {
   players: number;
   answered_players: number;
+  current_question_id?: string | null;
   current_question: string;
   answer_time: number;
   current_round: string;
@@ -54,6 +55,11 @@ export interface TiebreakAnswer {
   correct_answer: string;
   is_correct: boolean;
   timestamp: string;
+}
+
+export interface PlayerDevtoolsSignal {
+  isOpen: boolean;
+  detectedAt: string;
 }
 
 type AdminPanelContextType = {
@@ -82,6 +88,7 @@ type AdminPanelContextType = {
   setIsBuzzerMode: (isBuzzerMode: boolean) => void;
   tiebreakAnswers: TiebreakAnswer[];
   setTiebreakAnswers: (answers: TiebreakAnswer[]) => void;
+  devtoolsSignals: Record<string, PlayerDevtoolsSignal>;
 };
 
 const AdminPanelContext = createContext<AdminPanelContextType | undefined>(
@@ -110,6 +117,9 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
   const [gameInProgress, setGameInProgress] = useState(false);
   const [isBuzzerMode, setIsBuzzerMode] = useState(false);
   const [tiebreakAnswers, setTiebreakAnswers] = useState<TiebreakAnswer[]>([]);
+  const [devtoolsSignals, setDevtoolsSignals] = useState<
+    Record<string, PlayerDevtoolsSignal>
+  >({});
 
   const { instanceId } = useParams();
 
@@ -122,6 +132,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!instanceId) return;
     fetchQuestionInfo();
+    setDevtoolsSignals({});
   }, [instanceId]);
 
   useEffect(() => {
@@ -135,6 +146,17 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
 
     playerChannel.listen(".refresh-players-event", () => {
       fetchPlayers();
+    });
+
+    playerChannel.listen(".player-devtools-event", (data: any) => {
+      if (!data?.player_id) return;
+      setDevtoolsSignals((prev) => ({
+        ...prev,
+        [data.player_id]: {
+          isOpen: !!data.is_open,
+          detectedAt: data.detected_at,
+        },
+      }));
     });
 
     tiebreakAnswerChannel.listen(
@@ -153,6 +175,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
       gameChannel.stopListening(".game-control-event");
       gameChannel.stopListening(".tiebreak-answer-event");
       playerChannel.stopListening(".refresh-players-event");
+      playerChannel.stopListening(".player-devtools-event");
     };
   }, [instanceId]);
 
@@ -248,6 +271,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
         setIsBuzzerMode,
         tiebreakAnswers,
         setTiebreakAnswers,
+        devtoolsSignals,
       }}
     >
       {children}
