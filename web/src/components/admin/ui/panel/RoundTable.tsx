@@ -23,9 +23,28 @@ export const RoundTable = ({
         accessorKey: "player_name",
         header: "Spēlētājs",
         meta: {
-          className: "sticky left-0 bg-slate-100 z-10 border-r border-slate-200",
+          className: "sticky left-0 bg-slate-800 z-10 border-r border-slate-700",
         } as { className?: string },
         cell: ({ getValue }: { getValue: () => any }) => getValue(),
+      },
+      {
+        accessorKey: "submitted_current_question",
+        header: "Iesniegts",
+        cell: ({ getValue }: { getValue: () => boolean }) => {
+          const isSubmitted = getValue();
+
+          return (
+            <span
+              className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold border ${
+                isSubmitted
+                  ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-300"
+                  : "bg-rose-500/20 border-rose-400/50 text-rose-300"
+              }`}
+            >
+              {isSubmitted ? "Jā" : "Nē"}
+            </span>
+          );
+        },
       },
       ...tableQuestions.map((question) => ({
         accessorKey: question.id,
@@ -57,18 +76,34 @@ export const RoundTable = ({
   }, [tableQuestions]);
 
   const data = useMemo(() => {
+    const currentQuestionId = instance_info?.current_question_id;
+
     return player_answers.map((player) => {
       const playerData: Record<string, any> = {
         player_name: player.player_name,
         round_finished: player.round_finished,
+        submitted_current_question: false,
       };
+
+      if (currentQuestionId) {
+        const currentAnswer = player.questions.find(
+          (q) => q.id === currentQuestionId
+        );
+        playerData.submitted_current_question =
+          !!currentAnswer && `${currentAnswer.answer ?? ""}`.trim().length > 0;
+      }
+
       tableQuestions.forEach((question) => {
         const answerObj = player.questions.find((q) => q.id === question.id);
         playerData[question.id] = answerObj || null;
       });
       return playerData;
     });
-  }, [player_answers, tableQuestions]);
+  }, [instance_info?.current_question_id, player_answers, tableQuestions]);
+
+  const submittedNowCount = useMemo(() => {
+    return data.filter((row) => row.submitted_current_question).length;
+  }, [data]);
 
   const table = useReactTable({
     columns,
@@ -77,18 +112,21 @@ export const RoundTable = ({
   });
 
   return (
-    <div className="overflow-x-auto w-full h-full">
+    <div className="overflow-auto w-full h-full min-h-0 admin-scrollbar">
+      <div className="sticky top-0 z-20 bg-slate-900/95 border-b border-slate-700 px-3 py-2 text-sm text-slate-200">
+        Iesnieguši: {submittedNowCount}/{player_answers.length}
+      </div>
       <table className="table-auto text-center text-sm w-full">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr className="bg-slate-100 text-slate-600" key={headerGroup.id}>
+            <tr className="bg-slate-800 text-slate-200" key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta as {
                   className?: string;
                 };
                 return (
                   <th
-                    className={`px-2 py-2 border-b border-slate-200 ${meta?.className ?? ""}`}
+                    className={`px-2 py-2 border-b border-slate-700 ${meta?.className ?? ""}`}
                     key={header.id}
                   >
                     {flexRender(
@@ -106,8 +144,8 @@ export const RoundTable = ({
             <tr
               className={` ${
                 row.original.round_finished
-                  ? "bg-blue-50 text-blue-900"
-                  : "odd:bg-white even:bg-slate-50 text-slate-700"
+                  ? "bg-blue-950/40 text-blue-200"
+                  : "odd:bg-slate-900 even:bg-slate-800/60 text-slate-200"
               }`}
               key={row.id}
             >
@@ -117,7 +155,7 @@ export const RoundTable = ({
                 };
                 return (
                   <td
-                    className={`px-2 py-2 border-b border-slate-100 ${meta?.className ?? ""}`}
+                    className={`px-2 py-2 border-b border-slate-700 ${meta?.className ?? ""}`}
                     key={cell.id}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
