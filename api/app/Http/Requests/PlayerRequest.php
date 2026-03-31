@@ -23,7 +23,15 @@ class PlayerRequest extends FormRequest
     {
         return [
             'instance_id' => 'required|string',
-            'player_name' => 'required|string',
+            'player_name' => 'required|string|max:16',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'player_name.required' => 'Player name is required.',
+            'player_name.max' => 'Player name is too long.',
         ];
     }
 }
