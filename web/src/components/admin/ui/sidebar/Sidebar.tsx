@@ -65,18 +65,18 @@ export const Sidebar = () => {
   return (
     <>
       {game && (
-        <div className="flex flex-col gap-2 max-h-full overflow-y-scroll">
-          <p className="text-lg font-semibold">
+        <div className="flex flex-col gap-2 max-h-full overflow-y-auto admin-scrollbar p-3 bg-slate-900 text-slate-100">
+          <p className="text-lg font-semibold text-slate-100">
             Navigācija - {formatText(game?.title, 18)}
           </p>
           {rounds &&
             rounds.map((round) => (
               <SidebarRound key={round.id} round={round} />
             ))}
-          <hr />
+          <hr className="border-slate-700" />
           <button
             onClick={createRound}
-            className="bg-slate-200 font-semibold grow h-10 rounded-md hover:bg-slate-100 px-2 disabled:hover:bg-slate-200 disabled:cursor-default"
+            className="bg-blue-700 text-white font-semibold grow h-10 rounded-md hover:bg-blue-600 px-2 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-default"
             disabled={isLoading}
           >
             {!isLoading && <i className="fa-solid fa-plus"></i>}
@@ -93,8 +93,8 @@ export const Sidebar = () => {
         </div>
       )}
       {!game && (
-        <div className="flex flex-col gap-2">
-          <p className="text-lg font-semibold">Navigācija</p>
+        <div className="flex flex-col gap-2 p-3 bg-slate-900 text-slate-100">
+          <p className="text-lg font-semibold text-slate-100">Navigācija</p>
         </div>
       )}
     </>
