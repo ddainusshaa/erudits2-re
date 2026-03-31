@@ -59,14 +59,14 @@ export const ConfirmationProvider = ({ children }: { children: ReactNode }) => {
 
   const ConfirmationDialog = () =>
     isOpen && (
-      <div className="fixed inset-0 flex place-items-center justify-center z-40 bg-black bg-opacity-40 overflow-hidden backdrop-blur-sm px-4">
-        <div className="min-w-96  rounded-md  bg-white  shadow-md">
-          <div className="flex place-items-center py-2 px-4 justify-between">
+      <div className="fixed inset-0 flex place-items-center justify-center z-40 bg-black/40 overflow-hidden backdrop-blur-sm px-4">
+        <div className="min-w-96 rounded-md bg-slate-900 border border-slate-700 text-slate-100 shadow-md">
+          <div className="flex place-items-center py-2 px-4 justify-between border-b border-slate-700">
             <div className="flex place-items-center gap-2">
-              <i className="fa-solid fa-circle-exclamation text-xl"></i>
+              <i className="fa-solid fa-circle-exclamation text-xl text-blue-400"></i>
               <h2 className="font-bold">Uzmanību!</h2>
             </div>
-            <button onClick={handleCancel}>
+            <button onClick={handleCancel} className="text-slate-300 hover:text-slate-100 transition-colors">
               <i className="fa-xmark fa-solid text-xl"></i>
             </button>
           </div>
@@ -74,13 +74,13 @@ export const ConfirmationProvider = ({ children }: { children: ReactNode }) => {
             <p className="font-semibold text-xl">{message}</p>
             <div className="flex gap-8">
               <button
-                className="px-6 py-1 w-36 bg-slate-200 font-bold hover:bg-opacity-70 rounded-md shadow-sm transition-all text-lg"
+                className="px-6 py-1 w-36 bg-slate-700 text-slate-100 font-bold hover:bg-slate-600 rounded-md shadow-sm transition-all text-lg"
                 onClick={handleConfirm}
               >
                 Jā
               </button>
               <button
-                className="px-6 py-1 text-white text-lg font-bold hover:bg-opacity-70 w-36 shadow-sm  transition-all bg-[#E63946] rounded-md"
+                className="px-6 py-1 text-white text-lg font-bold hover:bg-red-600 w-36 shadow-sm transition-all bg-red-500 rounded-md"
                 onClick={handleCancel}
               >
                 Nē
