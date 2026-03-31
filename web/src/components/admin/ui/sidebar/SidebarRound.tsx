@@ -161,7 +161,7 @@ export const SidebarRound = ({ round }: { round: IRound }) => {
       <div className="flex gap-1">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="bg-slate-200 font-semibold w-10 h-10 rounded-md hover:bg-slate-100 disabled:pointer disabled:hover:bg-slate-200 disabled:opacity-90"
+          className="bg-slate-800 text-slate-100 font-semibold w-10 h-10 rounded-md hover:bg-slate-700 disabled:pointer disabled:hover:bg-slate-800 disabled:opacity-90"
         >
           <i
             className={`fa-solid fa-caret-${isCollapsed ? "down" : "right"}`}
@@ -169,14 +169,14 @@ export const SidebarRound = ({ round }: { round: IRound }) => {
         </button>
         <button
           onClick={openRoundEditor}
-          className="bg-slate-200 font-semibold grow h-10 rounded-md hover:bg-slate-100 px-2"
+          className="bg-slate-800 text-slate-100 font-semibold grow h-10 rounded-md hover:bg-slate-700 px-2"
         >
           {formatText(round.title, 20)} - {roundQuestions?.length ?? 0}{" "}
           <i className="fa-regular fa-circle-question"></i>
         </button>
         <button
           onClick={deleteRound}
-          className="px-3 hover:bg-red-100 bg-slate-200 rounded-md h-10"
+          className="px-3 hover:bg-red-900/40 bg-slate-800 text-slate-200 rounded-md h-10"
         >
           <i className="fa-regular fa-trash-can"></i>
         </button>
@@ -187,14 +187,14 @@ export const SidebarRound = ({ round }: { round: IRound }) => {
             roundQuestions.map((question, index) => (
               <div key={index} className="w-full gap-[1px] flex">
                 <button
-                  className="grow bg-slate-100 rounded-s-md h-8"
+                  className="grow bg-slate-800 text-slate-100 rounded-s-md h-8 hover:bg-slate-700"
                   onClick={() => openQuestionEditor(question)}
                 >
                   {formatText(question.title, 20)}
                 </button>
                 <button
                   onClick={() => deleteQuestion(question)}
-                  className="px-2 hover:bg-red-100 bg-slate-100 rounded-e-md h-8"
+                  className="px-2 hover:bg-red-900/40 bg-slate-800 text-slate-200 rounded-e-md h-8"
                 >
                   <i className="fa-regular fa-trash-can"></i>
                 </button>
@@ -203,7 +203,7 @@ export const SidebarRound = ({ round }: { round: IRound }) => {
 
           <button
             onClick={createQuestion}
-            className="bg-slate-100 w-full h-8 rounded-md p-1 hover:bg-slate-50"
+            className="bg-blue-700 text-white w-full h-8 rounded-md p-1 hover:bg-blue-600"
           >
             {!isLoading && <i className="fa-solid fa-plus"></i>}
             {isLoading && (
