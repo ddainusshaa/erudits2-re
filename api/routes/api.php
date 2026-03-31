@@ -51,6 +51,8 @@ Route::post('/player-finish-round', [PlayerController::class, 'finishRound']);
 Route::get('/ping', [BroadcastController::class, 'ping']);
 
 Route::get('/player/{id}', [PlayerController::class, 'show']);
+Route::post('/player-ping', [PlayerController::class, 'ping']);
+Route::post('/player-devtools', [PlayerController::class, 'devtools']);
 
 Route::get('/version', function () {
     return response()->json([
