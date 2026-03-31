@@ -3,6 +3,7 @@ import { SpinnerCircularFixed } from "spinners-react";
 import { PlayerLocalStorage } from "../enum/PlayerLocalStorage";
 import { IGameSessionStorage } from "../interface/IGameSessionStorage";
 import { constants } from "../../../constants";
+import { localizeError } from "../../../localization";
 
 import { usePlayer } from "../../universal/PlayerContext";
 
@@ -29,8 +30,13 @@ export const Lobby = () => {
   const readyPlayer = async () => {
     setIsLoading(true);
     setError("");
-    if (playerName === "") {
+    if (playerName.trim() === "") {
       setError("Lūdzu, ievadiet spēlētāja nosaukumu!");
+      setIsLoading(false);
+      return;
+    }
+    if (playerName.trim().length > 16) {
+      setError("Spēlētāja nosaukums ir pārāk garš (maks. 16 simboli).");
       setIsLoading(false);
       return;
     }
@@ -66,7 +72,11 @@ export const Lobby = () => {
       setPlayerId(data.id);
       return true;
     }
-    setError(data?.error ?? "Kļūda veidojot spēlētāju");
+
+    const rawErrorMessage =
+      data?.error ?? data?.message ?? data?.errors?.player_name?.[0];
+
+    setError(localizeError(rawErrorMessage ?? "Kļūda veidojot spēlētāju"));
     return false;
   };
 
