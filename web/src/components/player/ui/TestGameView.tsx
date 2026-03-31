@@ -27,6 +27,14 @@ export const TestGameView = () => {
     isDisqualified,
   } = usePlayer();
 
+  const resolveQuestionImageSrc = (url?: string) => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return constants.baseImgUrl + url;
+  };
+
   const confirm = useConfirmation();
 
   if (!questions[selectedQuestionIndex]) {
@@ -146,7 +154,7 @@ export const TestGameView = () => {
 
   if (roundFinished) {
     return (
-      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center gap-4 text-center px-4">
+      <div className="fixed inset-0 z-40 bg-[#F0EDCA] overflow-hidden flex flex-col items-center justify-center gap-4 text-center px-4">
         <img
           src="/GvG.png"
           alt="Game logo"
@@ -169,7 +177,7 @@ export const TestGameView = () => {
   };
 
   return (
-    <div className="text-center select-none lg:p-12 w-full flex flex-col lg:gap-4 min-h-[100dvh] fade-in max-w-7xl mx-auto px-4">
+    <div className="text-center select-none lg:p-12 w-full flex flex-col lg:gap-4 min-h-[calc(100dvh-2rem)] overflow-y-auto box-border fade-in max-w-7xl mx-auto px-4 pb-6">
       {!!isDisqualified && (
         <div className="lg:fixed place-items-center h-12 lg:text-xl font-semibold text-white left-0 top-0 w-full lg:opacity-90 px-4 bg-[#E812FF] flex justify-around">
           <i className="fa-solid fa-ban"></i>Dalībnieks diskvalificēts - punkti
@@ -184,9 +192,7 @@ export const TestGameView = () => {
         >
           <img
             className="w-full h-full object-contain"
-            src={
-              constants.baseImgUrl + questions[selectedQuestionIndex].image_url
-            }
+            src={resolveQuestionImageSrc(questions[selectedQuestionIndex].image_url)}
           ></img>
           <p className="absolute z-40 text-white text-xl lg:text-3xl font-semibold bg-black opacity-70 px-4 py-2 rounded-md bottom-4">
             Uzspiediet jebkur, lai aizvērtu bildi
@@ -209,7 +215,7 @@ export const TestGameView = () => {
             <i className="fa-regular fa-circle-question lg:text-xl drop-shadow-lg ms-3"></i>
           </div>
         </div>
-        <p className="font-semibold lg:text-3xl text-xl drop-shadow-md">
+        <p className="font-semibold lg:text-3xl text-xl drop-shadow-md break-words break-all whitespace-normal leading-snug w-full">
           {questions[selectedQuestionIndex].title}
         </p>
       </div>
