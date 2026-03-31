@@ -17,6 +17,9 @@ import { useConfirmation } from "../../../universal/ConfirmationWindowContext";
 export const GameCreatorQuestion = () => {
   const [question, setQuestion] = useState(CreateQuestionModel.title);
   const [image, setImage] = useState<File>();
+  const [imageSourceType, setImageSourceType] = useState<"upload" | "link" | "none">(
+    "upload"
+  );
   const [isOpenAnswer, setIsOpenAnswer] = useState(
     CreateQuestionModel.is_text_answer
   );
@@ -29,6 +32,14 @@ export const GameCreatorQuestion = () => {
   const [guidelines, setGuidelines] = useState(CreateQuestionModel.guidelines);
 
   let formValues: IQuestion = CreateQuestionModel;
+
+  const resolveImagePreviewSrc = (url?: string) => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return constants.baseImgUrl + url;
+  };
 
   const { questions, setQuestions, setIsChanged } = useSidebar();
 
@@ -55,7 +66,7 @@ export const GameCreatorQuestion = () => {
       title: formValues.title,
       is_text_answer: formValues.is_text_answer,
       guidelines: formValues.guidelines,
-      image: formValues.image_url,
+      image_url: formValues.image_url,
       answers: formValues.answers,
     };
     sessionStorage.setItem(
@@ -120,6 +131,13 @@ export const GameCreatorQuestion = () => {
     setAnswers(formValues.answers);
     setOpenAnswers(formValues.open_answers);
     setImageUrl(formValues.image_url);
+    if (!formValues.image_url) {
+      setImageSourceType("none");
+    } else {
+      setImageSourceType(
+        /^https?:\/\//i.test(formValues.image_url) ? "link" : "upload"
+      );
+    }
     setGuidelines(formValues.guidelines);
 
     setIsLoaded(true);
@@ -148,6 +166,13 @@ export const GameCreatorQuestion = () => {
     if (!values) {
       return;
     }
+    const imageUrlToSubmit =
+      imageSourceType === "none"
+        ? null
+        : imageSourceType === "link"
+        ? (imageUrl ?? "").trim() || null
+        : values.image_url ?? null;
+
     const response = await fetch(`${constants.baseApiUrl}/questions`, {
       method: "POST",
       headers: {
@@ -161,6 +186,7 @@ export const GameCreatorQuestion = () => {
         title: values.title,
         is_text_answer: values.is_text_answer,
         guidelines: values.guidelines,
+        image_url: imageUrlToSubmit,
         round_id: values.round_id,
         answers: values.answers,
       }),
@@ -246,7 +272,7 @@ export const GameCreatorQuestion = () => {
   };
 
   return (
-    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-white">
+    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-slate-900 text-slate-100">
       <form
         onSubmit={onFormSubmit}
         className="flex flex-col gap-2 w-full justify-between"
@@ -260,7 +286,7 @@ export const GameCreatorQuestion = () => {
                   onChange={(e) => setQuestion(e.target.value)}
                   type="text"
                   placeholder="Kā sauc Latvijas pirmo prezidentu?"
-                  className="p-2 px-4 shadow-sm rounded-s-sm grow bg-slate-100"
+                  className="p-2 px-4 shadow-sm rounded-s-sm grow bg-slate-800 border border-slate-700 text-slate-100"
                   value={question}
                 />
                 <label
@@ -268,20 +294,21 @@ export const GameCreatorQuestion = () => {
                   onMouseEnter={() => setShowImagePreview(true)}
                   onMouseLeave={() => setShowImagePreview(false)}
                   className={`p-2 rounded-e-sm px-4 ${
-                    image?.size ?? 0 > 0
-                      ? "bg-[#E63946] hover:bg-opacity-90"
-                      : "bg-slate-200 hover:bg-slate-300"
+                    ((image?.size ?? 0) > 0) || ((imageUrl?.length ?? 0) > 0)
+                      ? "bg-[#E63946] hover:bg-opacity-90 text-white"
+                      : "bg-slate-700 hover:bg-slate-600 text-slate-100"
                   }`}
                 >
                   <i className="fa-solid fa-image"></i>
-                  {showImagePreview && image && (
-                    <div className="w-48 h-48 absolute bg-white border border-slate-200 shadow-md p-2">
+                  {showImagePreview && (image || imageUrl) && (
+                    <div className="w-48 h-48 absolute bg-slate-900 border border-slate-700 shadow-md p-2 rounded-md z-20">
                       <img
                         src={
                           image
                             ? URL.createObjectURL(image)
-                            : constants.baseImgUrl + imageUrl
+                            : resolveImagePreviewSrc(imageUrl)
                         }
+                        className="w-full h-full object-contain"
                       />
                     </div>
                   )}
@@ -290,12 +317,67 @@ export const GameCreatorQuestion = () => {
                   onChange={(e) => {
                     if (e.target.files) {
                       setImage(e.target.files[0]);
+                      setImageSourceType("upload");
+                      setImageUrl("");
                     }
                   }}
                   id="imageUpload"
                   className="hidden"
                   type="file"
                 ></input>
+              </div>
+              <div className="mt-2 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setImageSourceType("upload")}
+                    className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                      imageSourceType === "upload"
+                        ? "bg-blue-700 text-white border-blue-600"
+                        : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    }`}
+                  >
+                    Augšupielādēt attēlu
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageSourceType("link");
+                      setImage(undefined);
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                      imageSourceType === "link"
+                        ? "bg-blue-700 text-white border-blue-600"
+                        : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    }`}
+                  >
+                    Ielikt attēla saiti
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageSourceType("none");
+                      setImage(undefined);
+                      setImageUrl("");
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                      imageSourceType === "none"
+                        ? "bg-blue-700 text-white border-blue-600"
+                        : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    }`}
+                  >
+                    Bez attēla
+                  </button>
+                </div>
+                {imageSourceType === "link" && (
+                  <input
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    value={imageUrl ?? ""}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="p-2 px-3 shadow-sm rounded-md bg-slate-800 border border-slate-700 text-slate-100"
+                  />
+                )}
               </div>
             </div>
             <div className="flex flex-col gap-2 place-items-center justify-between">
@@ -319,7 +401,7 @@ export const GameCreatorQuestion = () => {
                   </label>
                   <button
                     onClick={(e) => addNewAnswer(e)}
-                    className="mx-2 px-4 rounded-md shadow-md bg-[#E63946] hover:bg-opacity-50"
+                    className="mx-2 px-4 rounded-md shadow-md bg-[#E63946] hover:bg-opacity-80"
                   >
                     <i className="fa-solid text-sm text-white fa-plus"></i>
                   </button>
@@ -374,7 +456,7 @@ export const GameCreatorQuestion = () => {
               <input
                 id="guidelines"
                 type="text"
-                className="w-full h-10 px-2 rounded-md shadow-sm bg-slate-100"
+                className="w-full h-10 px-2 rounded-md shadow-sm bg-slate-800 border border-slate-700 text-slate-100"
                 value={guidelines}
                 onChange={(e) => setGuidelines(e.target.value)}
               />
@@ -384,7 +466,7 @@ export const GameCreatorQuestion = () => {
                   <li className="mb-2 flex gap-1" key={index}>
                     <input
                       type="text"
-                      className="w-72 h-10 px-2 rounded-s-md shadow-sm bg-slate-100"
+                      className="w-72 h-10 px-2 rounded-s-md shadow-sm bg-slate-800 border border-slate-700 text-slate-100"
                       placeholder="j.čakste"
                       value={answer.text}
                       onChange={(e) => {
@@ -398,7 +480,7 @@ export const GameCreatorQuestion = () => {
                     />
                     <button
                       onClick={(e) => deleteOpenAnswer(e, index)}
-                      className="w-10 h-10 bg-slate-100 rounded-e-md shadow-sm hover:bg-red-100"
+                      className="w-10 h-10 bg-slate-800 border border-slate-700 rounded-e-md shadow-sm hover:bg-red-900/40"
                     >
                       <i className="fa-regular  fa-trash-can"></i>
                     </button>
