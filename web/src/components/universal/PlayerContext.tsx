@@ -4,6 +4,7 @@ import {
   useState,
   createContext,
   useEffect,
+  useRef,
 } from "react";
 import { PlayerLocalStorage } from "../player/enum/PlayerLocalStorage";
 import { constants } from "../../constants";
@@ -42,6 +43,8 @@ type PlayerContextType = {
   isBuzzerMode: boolean;
   setBuzzerEnabled: (buzzerEnabled: boolean) => void;
   buzzerEnabled: boolean;
+  isRealtimeConnected: boolean;
+  reconnectRealtime: () => void;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -80,6 +83,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isTiebreaking, setIsTiebreaking] = useState<boolean>(false);
   const [isBuzzerMode, setIsBuzzerMode] = useState<boolean>(false);
   const [buzzerEnabled, setBuzzerEnabled] = useState(false);
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(true);
+  const devtoolsStateRef = useRef({ isOpen: false, lastSentAt: 0 });
 
   useEffect(() => {
     const player = JSON.parse(
@@ -112,9 +118,20 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       setIsBuzzerMode(data.instance.buzzers_mode);
       setBuzzerEnabled(data.player.buzzer_enabled);
       setIsReady(true);
+      setGameStarted(!!data.instance.game_started);
       if (data.instance.game_started) {
         navigate("/play/game");
       }
+      return;
+    }
+
+    // Player no longer exists in this instance (e.g. removed by admin).
+    if (response.status === 404) {
+      localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+      setPlayerId("");
+      setIsReady(false);
+      setGameStarted(false);
+      navigate("/play/end");
     }
   };
 
@@ -141,6 +158,127 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       fetchInfo();
     }
   }, [instanceId]);
+
+  useEffect(() => {
+    if (!playerId || !instanceId || !isReady || gameStarted) return;
+
+    const interval = setInterval(() => {
+      fetchPlayer(playerId);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [playerId, instanceId, isReady, gameStarted]);
+
+  useEffect(() => {
+    if (!playerId || !instanceId || !isReady) return;
+
+    const interval = setInterval(() => {
+      fetch(`${constants.baseApiUrl}/player-ping`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+        }),
+      });
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [playerId, instanceId, isReady]);
+
+  useEffect(() => {
+    if (!playerId || typeof window === "undefined") return;
+
+    const threshold = 160;
+    const resendInterval = 15000;
+
+    const sendStatus = (isOpen: boolean) => {
+      fetch(`${constants.baseApiUrl}/player-devtools`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+          is_open: isOpen,
+        }),
+      }).catch(() => undefined);
+    };
+
+    const check = () => {
+      if (window.innerWidth < 900 || window.innerHeight < 600) {
+        if (devtoolsStateRef.current.isOpen) {
+          devtoolsStateRef.current.isOpen = false;
+          devtoolsStateRef.current.lastSentAt = Date.now();
+          sendStatus(false);
+        }
+        return;
+      }
+
+      const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
+      const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
+      const isOpen = widthDiff > threshold || heightDiff > threshold;
+
+      const now = Date.now();
+      const shouldResend =
+        isOpen && now - devtoolsStateRef.current.lastSentAt > resendInterval;
+
+      if (isOpen !== devtoolsStateRef.current.isOpen || shouldResend) {
+        devtoolsStateRef.current.isOpen = isOpen;
+        devtoolsStateRef.current.lastSentAt = now;
+        sendStatus(isOpen);
+      }
+    };
+
+    check();
+    const interval = setInterval(check, 2000);
+    window.addEventListener("resize", check);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("resize", check);
+    };
+  }, [playerId]);
+
+  useEffect(() => {
+    if (!instanceId || !gameStarted || round || isBuzzerMode) return;
+
+    const interval = setInterval(() => {
+      fetchInfo();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [instanceId, gameStarted, round, isBuzzerMode]);
+
+  useEffect(() => {
+    const pusher = (echo as any)?.connector?.pusher;
+    if (!pusher?.connection) return;
+
+    const connection = pusher.connection;
+    const handleConnected = () => setIsRealtimeConnected(true);
+    const handleDisconnected = () => setIsRealtimeConnected(false);
+
+    setIsRealtimeConnected(connection.state === "connected");
+    connection.bind("connected", handleConnected);
+    connection.bind("disconnected", handleDisconnected);
+    connection.bind("unavailable", handleDisconnected);
+    connection.bind("failed", handleDisconnected);
+
+    return () => {
+      connection.unbind("connected", handleConnected);
+      connection.unbind("disconnected", handleDisconnected);
+      connection.unbind("unavailable", handleDisconnected);
+      connection.unbind("failed", handleDisconnected);
+    };
+  }, []);
+
+  const reconnectRealtime = () => {
+    const pusher = (echo as any)?.connector?.pusher;
+    if (pusher) {
+      pusher.connect();
+    }
+  };
 
   useEffect(() => {
     if (!round?.is_test && !isTiebreaking && !currentQuestion) {
@@ -205,11 +343,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       gameChannel.listen(".game-control-event", (data: any) => {
         switch (data.command) {
           case "end":
+            setGameStarted(false);
             navigate("/play/end");
             break;
           case "start":
             if (isReady || playerId.length) {
               fetchInfo();
+              setGameStarted(true);
               navigate("/play/game");
             }
             if (!isReady && !playerId.length) navigate("/play/end");
@@ -246,6 +386,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             break;
           case "requalified":
             setIsDisqualified(false);
+            break;
+          case "ended":
+            localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+            setPlayerId("");
+            setIsReady(false);
+            setGameStarted(false);
+            navigate("/play/end");
             break;
           case "buzzer-enabled":
             setBuzzerEnabled(true);
@@ -347,6 +494,8 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         isBuzzerMode,
         setBuzzerEnabled,
         buzzerEnabled,
+        isRealtimeConnected,
+        reconnectRealtime,
       }}
     >
       {children}
