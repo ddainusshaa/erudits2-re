@@ -83,11 +83,11 @@ export const StartStop = ({
   };
 
   return (
-    <div className="gap-4 flex">
+    <div className="gap-2 flex items-stretch">
       <button
         disabled={isLoading}
         onClick={closeGame}
-        className={`h-10 w-32 rounded-sm ${
+        className={`h-10 min-w-[130px] px-4 inline-flex items-center justify-center rounded-md ${
           isLoading ? "bg-slate-400" : " bg-red-500 hover:bg-red-600"
         } text-white font-bold transition-all`}
       >
@@ -97,7 +97,7 @@ export const StartStop = ({
       <button
         disabled={isLoading || gameStarted}
         onClick={startGame}
-        className={`h-10 w-32 rounded-sm ${
+        className={`h-10 min-w-[130px] px-4 inline-flex items-center justify-center rounded-md ${
           isLoading || gameStarted
             ? "bg-slate-400"
             : "bg-emerald-500 hover:bg-emerald-600"
