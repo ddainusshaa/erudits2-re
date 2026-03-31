@@ -19,6 +19,7 @@ export const LandingPage = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [existingGameCode, setExistingGameCode] = useState("");
+  const [zoomInverseScale, setZoomInverseScale] = useState(1);
 
   const navigate = useNavigate();
 
@@ -53,6 +54,23 @@ export const LandingPage = () => {
     };
 
     validateStoredSession();
+  }, []);
+
+  useEffect(() => {
+    const syncZoom = () => {
+      const scale = window.visualViewport?.scale ?? 1;
+      const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+      setZoomInverseScale(1 / safeScale);
+    };
+
+    syncZoom();
+    window.addEventListener("resize", syncZoom);
+    window.visualViewport?.addEventListener("resize", syncZoom);
+
+    return () => {
+      window.removeEventListener("resize", syncZoom);
+      window.visualViewport?.removeEventListener("resize", syncZoom);
+    };
   }, []);
 
   const postJoin = async (joinCode: string) => {
@@ -122,7 +140,18 @@ export const LandingPage = () => {
   };
 
   return (
-    <div className="app-theme-bg flex min-h-[100dvh] w-full items-center justify-center p-4 font-sans">
+    <div className="app-theme-bg min-h-[100dvh] w-full font-sans overflow-hidden">
+      <div
+        className="relative min-h-[100dvh] w-full flex items-center justify-center p-4"
+        style={{
+          transform: `scale(${zoomInverseScale})`,
+          transformOrigin: "center center",
+          width: `${100 / zoomInverseScale}%`,
+          minHeight: `${100 / zoomInverseScale}dvh`,
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
       {!!existingGameCode && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
           <div className="bg-white border-l-4 shadow-md rounded p-4 flex flex-col sm:flex-row items-center gap-4 w-full" style={{ borderColor: accentMagenta }}>
@@ -214,6 +243,7 @@ export const LandingPage = () => {
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 };
