@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\PlayerRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Events\PlayerEvent;
+use App\Events\PlayerDevtoolsEvent;
 use App\Models\GameInstance;
 use App\Http\Resources\PlayerResource;
 use App\Events\RefreshPlayersEvent;
@@ -111,6 +112,45 @@ class PlayerController extends Controller
         return response()->json(['error' => 'Player not found.'], 404);
     }
 
+    public function ping(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'player_id' => 'required|uuid',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Invalid player id.'], 400);
+        }
+
+        $player = Player::find($request->player_id);
+        if ($player) {
+            $player->touch();
+            return response()->json(['message' => 'Player pinged.'], 200);
+        }
+
+        return response()->json(['error' => 'Player not found.'], 404);
+    }
+
+    public function devtools(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'player_id' => 'required|uuid',
+            'is_open' => 'required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Invalid payload.'], 400);
+        }
+
+        $player = Player::find($request->player_id);
+        if ($player) {
+            broadcast(new PlayerDevtoolsEvent($player->instance_id, $player->id, (bool) $request->is_open));
+            return response()->json(['message' => 'Devtools status updated.'], 200);
+        }
+
+        return response()->json(['error' => 'Player not found.'], 404);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -167,6 +207,7 @@ class PlayerController extends Controller
             try {
                 $player = Player::where('id', $id)->first();
                 if($player) {
+                    event(new PlayerEvent($id, 'ended'));
                     $player->delete();
                 }
             } catch(Exception $e) {
