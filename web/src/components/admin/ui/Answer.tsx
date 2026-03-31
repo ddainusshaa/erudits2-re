@@ -15,7 +15,7 @@ export const Answer = ({
     <div key={index} className="flex flex-col h-full">
       <textarea
         placeholder="Atbildes teksts..."
-        className="bg-slate-100 max-w-52 max-h-72 rounded-t-md resize-none p-2 px-4 grow"
+        className="bg-slate-800 border border-slate-700 text-slate-100 max-w-52 max-h-72 rounded-t-md resize-none p-2 px-4 grow"
         onChange={(e) => onInput(e.target.value)}
         value={answer.text}
       />
@@ -24,7 +24,7 @@ export const Answer = ({
           className={` rounded-bl-md grow hover:bg-slate-300 ${
             answer.is_correct
               ? "bg-[#E63946] hover:bg-[#cc8288]"
-              : "bg-slate-200"
+              : "bg-slate-700 hover:bg-slate-600"
           }`}
         >
           <button
@@ -36,7 +36,7 @@ export const Answer = ({
           >
             <i
               className={`fa-solid fa-check mx-auto ${
-                answer.is_correct ? "text-white" : "text-black"
+                  answer.is_correct ? "text-white" : "text-slate-100"
               }`}
             ></i>
           </button>
@@ -47,7 +47,7 @@ export const Answer = ({
               e.preventDefault();
               onDelete();
             }}
-            className="w-8 rounded-br-md bg-slate-200 hover:bg-slate-300"
+              className="w-8 rounded-br-md bg-slate-700 text-slate-100 hover:bg-red-900/40"
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
