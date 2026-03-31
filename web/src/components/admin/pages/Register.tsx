@@ -55,7 +55,7 @@ const AdminRegister = () => {
   }, []);
 
   return (
-    <div className="app-theme-bg flex min-h-[100dvh] w-full items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] w-full items-center justify-center p-4 bg-slate-950">
       <div className="app-theme-content w-full max-w-md bg-white rounded shadow-sm border border-slate-200 overflow-hidden flex flex-col">
         <div className="px-6 py-8 sm:p-10 flex-1">
           <div className="flex justify-center mb-6">
