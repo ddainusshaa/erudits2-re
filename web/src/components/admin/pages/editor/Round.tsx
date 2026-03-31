@@ -189,7 +189,7 @@ export const GameEditorQuestionRound = () => {
   };
 
   return (
-    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-white">
+    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-slate-900 text-slate-100 border border-slate-700">
       <form
         onSubmit={onFormSubmit}
         className="flex flex-col gap-2 w-full justify-between"
@@ -200,24 +200,24 @@ export const GameEditorQuestionRound = () => {
             <input
               onChange={(e) => setTitle(e.target.value)}
               type="text"
-              className="p-2 px-4 shadow-sm rounded-sm bg-slate-100"
+              className="p-2 px-4 shadow-sm rounded-sm bg-slate-800 border border-slate-700 text-slate-100"
               value={title}
             />
           </div>
-          <div className="flex justify-between px-16">
+          <div className="flex flex-wrap justify-between gap-6 px-2 sm:px-6 lg:px-12">
             <div className="flex flex-col gap-2 place-items-center">
               <label className="text-lg font-semibold">
                 Diskvalificēto skaits
               </label>
               <div className="flex place-items-center gap-6 justify-center w-full">
-                <i className="fa-solid fa-person-circle-minus text-2xl text-slate-600"></i>
+                <i className="fa-solid fa-person-circle-minus text-2xl text-slate-300"></i>
                 <input
                   onChange={(e) =>
                     setDisqualifyAmount(parseInt(e.target.value))
                   }
                   min={0}
                   type="number"
-                  className="w-24 p-2 bg-slate-100 rounded-md text-center"
+                  className="w-24 p-2 bg-slate-800 border border-slate-700 rounded-md text-center text-slate-100"
                   value={disqualifyAmount}
                 />
               </div>
@@ -227,12 +227,12 @@ export const GameEditorQuestionRound = () => {
                 Laiks atbildei (sek.)
               </label>
               <div className="flex place-items-center gap-6 justify-center w-full">
-                <i className="fa-solid fa-stopwatch text-2xl text-slate-600"></i>
+                <i className="fa-solid fa-stopwatch text-2xl text-slate-300"></i>
                 <input
                   onChange={(e) => setAnswerTime(parseInt(e.target.value))}
                   type="number"
                   min={0}
-                  className="w-24 p-2 bg-slate-100 rounded-md text-center"
+                  className="w-24 p-2 bg-slate-800 border border-slate-700 rounded-md text-center text-slate-100"
                   value={answerTime}
                 />
               </div>
@@ -242,12 +242,12 @@ export const GameEditorQuestionRound = () => {
                 Punktu skaits par pareizu atbildi
               </label>
               <div className="flex place-items-center gap-6 justify-center w-full">
-                <i className="fa-solid fa-bullseye text-2xl text-slate-600"></i>
+                <i className="fa-solid fa-bullseye text-2xl text-slate-300"></i>
                 <input
                   onChange={(e) => setPoints(parseInt(e.target.value))}
                   type="number"
                   min={0}
-                  className="w-24 p-2 bg-slate-100 rounded-md text-center"
+                  className="w-24 p-2 bg-slate-800 border border-slate-700 rounded-md text-center text-slate-100"
                   value={points}
                 />
               </div>
