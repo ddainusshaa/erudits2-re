@@ -105,8 +105,8 @@ export const AdminGames = () => {
 
   if (!authorized) {
     return (
-      <div className="app-theme-bg flex flex-col min-h-[100dvh] overflow-x-hidden items-center justify-center">
-        <SpinnerCircularFixed color="#0F9A09" size="48" thickness={150} />
+      <div className="flex flex-col min-h-[100dvh] overflow-x-hidden items-center justify-center bg-slate-950">
+        <SpinnerCircularFixed color="#3b82f6" size="48" thickness={150} />
       </div>
     );
   }
@@ -125,29 +125,29 @@ export const AdminGames = () => {
 
   return (
     <>
-      <div className="app-theme-bg flex flex-col min-h-[100dvh] w-full font-sans">
-        <div className="app-theme-content w-full max-w-7xl mx-auto p-6 sm:p-10 flex flex-col gap-8 flex-1">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded border border-slate-200 shadow-sm">
+      <div className="flex flex-col min-h-[100dvh] w-full font-sans bg-slate-950 text-slate-100">
+        <div className="w-full max-w-7xl mx-auto p-6 sm:p-10 flex flex-col gap-8 flex-1">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 p-6 rounded border border-slate-700 shadow-sm">
             <div>
-              <h1 className="font-bold text-2xl sm:text-3xl text-slate-800">
+              <h1 className="font-bold text-2xl sm:text-3xl text-slate-100">
                 Lietotāja Spēles
               </h1>
-              <p className="text-slate-500 mt-1 text-sm">Pārvaldiet un veidojiet jaunas erudīcijas spēles.</p>
+              <p className="text-slate-400 mt-1 text-sm">Pārvaldiet un veidojiet jaunas erudīcijas spēles.</p>
             </div>
             
             <div className="flex gap-3 w-full sm:w-auto">
               <button
                 disabled={isLoading}
                 className={`flex-1 sm:flex-none ${
-                  isLoading ? "bg-slate-100 text-slate-400" : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm"
-                } px-5 rounded py-2.5 flex items-center justify-center gap-2 transition-all font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#E812FF]/30`}
+                  isLoading ? "bg-slate-700 text-slate-400" : "bg-slate-800 border border-slate-700 text-slate-100 hover:bg-slate-700 shadow-sm"
+                } px-5 rounded py-2.5 flex items-center justify-center gap-2 transition-all font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 onClick={logout}
               >
                 Izrakstīties
                 {!isLoading && <i className="fa-solid fa-right-from-bracket ml-1"></i>}
                 {isLoading && (
                   <SpinnerCircularFixed
-                    color="#94a3b8"
+                    color="#cbd5e1"
                     size={20}
                     thickness={150}
                   />
@@ -159,9 +159,9 @@ export const AdminGames = () => {
                 disabled={isLoading}
                 className={`flex-1 sm:flex-none ${
                   isLoading
-                    ? "bg-[#91FF00]/60 cursor-not-allowed"
-                    : "bg-[#0F9A09] hover:brightness-95 shadow-sm text-white"
-                } px-5 rounded py-2.5 flex items-center justify-center gap-2 transition-all font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#0F9A09]/40`}
+                    ? "bg-blue-700/60 cursor-not-allowed"
+                    : "bg-blue-700 hover:bg-blue-600 shadow-sm text-white"
+                } px-5 rounded py-2.5 flex items-center justify-center gap-2 transition-all font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40`}
               >
                 Jauna spēle
                 {!isLoading && <i className="fa-solid fa-plus ml-1"></i>}
@@ -176,7 +176,7 @@ export const AdminGames = () => {
             </div>
           </div>
           
-          <div className="flex-1 bg-white rounded border border-slate-200 shadow-sm overflow-hidden p-6 flex flex-col">
+          <div className="flex-1 bg-slate-900 rounded border border-slate-700 shadow-sm overflow-auto p-6 flex flex-col min-h-0 admin-scrollbar">
             <AdminGameTable
               games={games}
               onActivationModalOpen={onActivationModalOpen}
