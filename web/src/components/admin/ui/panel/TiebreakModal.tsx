@@ -93,38 +93,46 @@ export const TiebreakModal = ({
   };
 
   return (
-    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2  glass-effect w-full h-full z-40">
+    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 glass-effect w-full h-full z-40">
       <div className="absolute inset-0 flex place-items-center justify-center gap-4 bg-black/40 backdrop-blur-sm z-50 p-4">
-        <div className="flex gap-4 place-items-center flex-col bg-black bg-opacity-80 p-3 rounded-md">
-          <div className="flex justify-between place-items-center w-full min-w-80">
-            <h1 className="font-bold text-white">Laušanas rezultāti</h1>
-            <button>
-              <i
-                className="fa-solid fa-xmark text-white cursor-pointer"
-                onClick={handleClose}
-              ></i>
+        <div className="flex gap-4 place-items-center flex-col bg-slate-900/95 border border-slate-700 shadow-lg rounded-xl w-full max-w-4xl max-h-[85dvh] overflow-hidden">
+          <div className="flex justify-between place-items-center w-full px-5 py-3 border-b border-slate-700">
+            <h1 className="font-bold text-slate-100">Laušanas rezultāti</h1>
+            <button
+              onClick={handleClose}
+              className="text-slate-300 hover:text-white transition-colors"
+            >
+              <i className="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
           {tiebreakAnswers?.length === 0 && (
-            <>
-              <p className="text-white">Gaida spēlētāju atbildes...</p>
-
+            <div className="w-full px-6 pb-6 pt-4 flex flex-col items-center gap-4">
+              <p className="text-slate-200">Gaida spēlētāju atbildes...</p>
               <SpinnerCircularFixed color="#fff" size={35} thickness={180} />
-            </>
+            </div>
           )}
           {tiebreakAnswers?.length > 0 && (
-            <>
-              <div className="flex text-white flex-col">
-                <p className="font-semibold">{tiebreakAnswers[0].question}</p>
-                <p className="text-sm">{tiebreakAnswers[0].correct_answer}</p>
+            <div className="w-full px-6 pb-6 pt-4 flex flex-col gap-4 overflow-y-auto">
+              <div className="flex flex-col gap-2 text-slate-100">
+                <p className="font-semibold text-lg break-words break-all whitespace-normal">
+                  {tiebreakAnswers[0].question}
+                </p>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-wider">
+                    Pareizā atbilde
+                  </p>
+                  <p className="text-sm text-slate-200 break-words break-all whitespace-normal">
+                    {tiebreakAnswers[0].correct_answer}
+                  </p>
+                </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-300">
+              <div className="overflow-x-auto w-full">
+                <table className="min-w-[640px] w-full table-fixed border border-slate-700 text-sm">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
-                      <tr className="bg-slate-200" key={headerGroup.id}>
+                      <tr className="bg-slate-800 text-slate-200" key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (
-                          <th key={header.id} className="px-2">
+                          <th key={header.id} className="px-3 py-2 text-left font-semibold">
                             {header.isPlaceholder
                               ? null
                               : flexRender(
@@ -140,11 +148,14 @@ export const TiebreakModal = ({
                   <tbody>
                     {table.getRowModel().rows.map((row) => (
                       <tr
-                        className="bg-slate-200 odd:bg-slate-100"
+                        className="bg-slate-900/60 odd:bg-slate-800/60 text-slate-100"
                         key={row.id}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-2">
+                          <td
+                            key={cell.id}
+                            className="px-3 py-2 align-top break-words break-all whitespace-normal"
+                          >
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
@@ -156,7 +167,7 @@ export const TiebreakModal = ({
                   </tbody>
                 </table>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
