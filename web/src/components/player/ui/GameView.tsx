@@ -25,6 +25,14 @@ export const GameView = () => {
     isDisqualified,
   } = usePlayer();
 
+  const resolveQuestionImageSrc = (url?: string) => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return constants.baseImgUrl + url;
+  };
+
   if (!currentQuestion || !round) {
     return (
       <div className="flex flex-col gap-4 place-items-center">
@@ -105,7 +113,7 @@ export const GameView = () => {
 
   if (roundFinished) {
     return (
-      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center gap-4 fade-in-short text-center px-4">
+      <div className="fixed inset-0 z-40 bg-[#F0EDCA] overflow-hidden flex flex-col items-center justify-center gap-4 fade-in-short text-center px-4">
         <img
           src="/GvG.png"
           alt="Game logo"
@@ -146,7 +154,7 @@ export const GameView = () => {
 
   return (
     <div
-      className={`text-center select-none lg:p-12 w-full flex flex-col fade-in lg:gap-4 min-h-[100dvh] max-w-7xl mx-auto pl-4`}
+      className={`text-center select-none lg:p-12 w-full flex flex-col fade-in lg:gap-4 min-h-[calc(100dvh-2rem)] overflow-y-auto box-border max-w-7xl mx-auto px-4 pb-6`}
     >
       {!!isDisqualified && (
         <div className="fixed place-items-center h-12 text-xl font-semibold text-white left-0 top-0 w-full opacity-90 bg-[#E812FF] flex justify-around">
@@ -169,7 +177,7 @@ export const GameView = () => {
         >
           <img
             className="w-full h-full object-contain"
-            src={constants.baseImgUrl + currentQuestion.image_url}
+            src={resolveQuestionImageSrc(currentQuestion.image_url)}
           ></img>
           <p className="absolute z-40 text-white text-xl lg:text-3xl font-semibold bg-black opacity-70 px-4 py-2 rounded-md bottom-4">
             Uzspiediet jebkur, lai aizvērtu bildi
@@ -177,7 +185,7 @@ export const GameView = () => {
         </div>
       )}
 
-      <div className="bg-white/80 border border-slate-200 lg:rounded-md text-slate-800 w-full lg:h-24 flex flex-col place-items-center lg:px-12 pt-2 px-4">
+      <div className="bg-white/80 border border-slate-200 lg:rounded-md text-slate-800 w-full flex flex-col place-items-center lg:px-12 py-3 px-4">
         <div className="flex lg:justify-center justify-between lg:gap-12 w-full place-items-center lg:px-12">
           <Countdown
             key={countdownTime}
@@ -194,7 +202,7 @@ export const GameView = () => {
             <i className="fa-regular fa-circle-question lg:text-xl drop-shadow-lg ms-3"></i>
           </div>
         </div>
-        <p className="font-semibold lg:text-3xl text-xl drop-shadow-md">
+        <p className="font-semibold lg:text-3xl text-xl drop-shadow-md break-words break-all whitespace-normal leading-snug w-full">
           {currentQuestion.title}
         </p>
       </div>
