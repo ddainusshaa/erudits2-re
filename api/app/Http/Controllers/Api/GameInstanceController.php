@@ -158,7 +158,7 @@ class GameInstanceController extends PlayerAnswerController
                 if (!$player) { // and player not found
                     return response()->json(['error' => 'Game already started'], 400);
                 }
-                if ($player->disqualified) { // if found but disqualified
+                if ($player->is_disqualified) { // if found but disqualified
                     return response()->json(['error' => 'Player disqualified'], 400);
                 }
             }
@@ -207,6 +207,7 @@ class GameInstanceController extends PlayerAnswerController
                     'current_round' => optional($round)->title,
                     'answered_players' => $answeredPlayers,
                     'answer_time' => optional($round)->answer_time,
+                    'current_question_id' => $gameInstance->current_question,
                     'current_question' => optional($round)->is_test ? 'TESTS' : $question,
                     'started_at' => $gameInstance->started_at,
                     'game_started' => $gameInstance->game_started,
