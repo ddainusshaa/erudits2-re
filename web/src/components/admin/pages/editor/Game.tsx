@@ -112,7 +112,7 @@ export const AdminGameEditor = () => {
   };
 
   return (
-    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-white">
+    <div className="flex w-full p-4 rounded-md font-[Manrope] grow bg-slate-900 text-slate-100 border border-slate-700">
       <form
         onSubmit={(e) => onFormSubmit(e)}
         className="flex flex-col gap-2 w-full justify-between"
@@ -122,14 +122,14 @@ export const AdminGameEditor = () => {
           <input
             onChange={(e) => setTitle(e.target.value)}
             type="text"
-            className="p-2 px-4 shadow-sm rounded-sm bg-slate-100"
+            className="p-2 px-4 shadow-sm rounded-sm bg-slate-800 border border-slate-700 text-slate-100"
             value={title}
           />
           <label className="text-lg font-semibold">Apraksts</label>
           <textarea
             onChange={(e) => setDescription(e.target.value)}
             value={description}
-            className="p-2 px-4 shadow-sm h-40 rounded-sm bg-slate-100 resize-none"
+            className="p-2 px-4 shadow-sm h-40 rounded-sm bg-slate-800 border border-slate-700 text-slate-100 resize-none"
           />
         </div>
         <div className="place-self-end">
