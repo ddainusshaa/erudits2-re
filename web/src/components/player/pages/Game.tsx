@@ -51,7 +51,7 @@ export const Game = () => {
 
   if (!isStarting) {
     return (
-      <div className="w-full min-h-[100dvh] bg-[#F0EDCA] flex flex-col items-center justify-center px-4 text-center">
+      <div className="fixed inset-0 z-40 bg-[#F0EDCA] overflow-hidden flex flex-col items-center justify-center px-4 text-center">
         <img
           src="/GvG.png"
           alt="Game logo"
@@ -68,7 +68,7 @@ export const Game = () => {
   }
 
   return (
-    <div className="relative w-full min-h-[100dvh] bg-[#F0EDCA] overflow-hidden flex flex-col justify-center items-center">
+    <div className="fixed inset-0 z-40 bg-[#F0EDCA] overflow-hidden flex flex-col justify-center items-center">
       <SpinnerCircularFixed size={44} thickness={150} color="#0F9A09" className="z-10" />
 
       {/* Keep the door animation only while transitioning into game/buzzer. */}
