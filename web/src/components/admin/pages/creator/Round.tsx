@@ -39,6 +39,10 @@ export const GameCreatorQuestionRound = () => {
 
   const showToast = useToast();
 
+  const answerTimeLabel = isTest
+    ? "Kārtas kopējais laiks (sek.)"
+    : "Laiks atbildei (sek.)";
+
   const navigate = useNavigate();
 
   const saveToSessionStorage = () => {
@@ -247,9 +251,7 @@ export const GameCreatorQuestionRound = () => {
               </div>
             </div>
             <div className="flex flex-col gap-2 place-items-center">
-              <label className="text-lg font-semibold">
-                Laiks atbildei (sek.)
-              </label>
+              <label className="text-lg font-semibold">{answerTimeLabel}</label>
               <div className="flex place-items-center gap-6 justify-center w-full">
                 <i className="fa-solid fa-stopwatch text-2xl text-slate-300"></i>
                 <input
@@ -291,7 +293,12 @@ export const GameCreatorQuestionRound = () => {
               />
             </div>
             <div className="flex flex-col gap-2 place-items-center justify-between">
-              <label className="text-lg font-semibold">Testa veida</label>
+              <label
+                className="text-lg font-semibold"
+                title="Spēlētāji paši pārvietojas pa jautājumiem, admins nespiež Nākamais jautājums."
+              >
+                Brīvā kārta
+              </label>
               <input
                 onChange={() => setIsTest(!isTest)}
                 type="checkbox"
