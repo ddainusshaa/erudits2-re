@@ -371,6 +371,21 @@ body,
   }
 }
 
+@keyframes flash-red {
+  0%, 100% {
+    color: #ff2d2d;
+    text-shadow: 0 0 16px rgba(255, 45, 45, 0.8);
+  }
+  50% {
+    color: #fff1f1;
+    text-shadow: 0 0 6px rgba(255, 45, 45, 0.4);
+  }
+}
+
+.timer-flash-red {
+  animation: flash-red 0.35s linear infinite;
+}
+
 .app-theme-bg {
   position: relative;
   overflow-x: hidden;
