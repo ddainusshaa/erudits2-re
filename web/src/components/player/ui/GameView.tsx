@@ -68,13 +68,26 @@ export const GameView = () => {
         </div>
       );
     }
+    const totalSeconds = minutes * 60 + seconds;
+    const isLastTen = totalSeconds <= 10 && totalSeconds > 5;
+    const isLastFive = totalSeconds <= 5;
+    const flashAnimation = isLastFive
+      ? "flash 0.35s linear infinite"
+      : isLastTen
+        ? "flash 0.8s linear infinite"
+        : undefined;
+    const baseOpacity = minutes === 0 && seconds < 11 ? 0.05 * (11 - seconds) : 0;
+    const backgroundColor = isLastTen || isLastFive
+      ? "rgba(255, 0, 0, 0.75)"
+      : `rgba(255, 0, 0, ${baseOpacity})`;
     return (
       <div
-        className="text-slate-800 font-semibold flex place-items-center lg:text-xl rounded-md"
+        className={`font-semibold flex place-items-center lg:text-xl rounded-md ${
+          isLastTen || isLastFive ? "text-white" : "text-slate-800"
+        }`}
         style={{
-          backgroundColor: `rgba(255, 0, 0, ${
-            minutes === 0 && seconds < 11 ? 0.05 * (11 - seconds) : 0
-          })`,
+          backgroundColor,
+          animation: flashAnimation,
         }}
       >
         <i className="fa-regular fa-clock lg:text-xl drop-shadow-lg me-3"></i>
@@ -120,7 +133,7 @@ export const GameView = () => {
           className="w-[220px] sm:w-[280px] md:w-[340px] h-auto object-contain"
         />
         <p className="text-slate-700 text-xl font-semibold">
-          Lūdzu, gaidiet nākamo jautājumu
+          Lūdzu, gaidiet nākamo jautājumu!
         </p>
       </div>
     );
