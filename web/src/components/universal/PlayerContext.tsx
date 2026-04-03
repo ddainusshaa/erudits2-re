@@ -434,9 +434,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       return currentQuestion?.id;
     }
     if (!round?.is_test) {
-      return currentQuestion!.id;
+      return currentQuestion?.id;
     }
-    return questions[selectedQuestionIndex - 1].id;
+    const index = roundFinished
+      ? selectedQuestionIndex
+      : selectedQuestionIndex - 1;
+    const safeIndex = Math.max(0, index);
+    return questions[safeIndex]?.id;
   };
 
   const postAnswers = async () => {
