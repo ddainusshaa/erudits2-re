@@ -11,12 +11,34 @@ export const RoundControl = () => {
   const { gameController, fetchQuestionInfo, instanceId, instance } =
     useAdminPanel();
   const [fetchDisabled, setFetchDisabled] = useState(false);
+  const [timerStyle, setTimerStyle] = useState(() => {
+    if (typeof window === "undefined") {
+      return "classic";
+    }
+    return localStorage.getItem("adminPanel.timerStyle") ?? "classic";
+  });
+  const [timerLabel, setTimerLabel] = useState(() => {
+    if (typeof window === "undefined") {
+      return "Taimeris";
+    }
+    return localStorage.getItem("adminPanel.timerLabel") ?? "Taimeris";
+  });
   const showToast = useToast();
 
   const refresh = async () => {
     setFetchDisabled(true);
     fetchQuestionInfo();
     setTimeout(() => setFetchDisabled(false), 2500);
+  };
+
+  const openTimerDisplay = () => {
+    if (!instanceId) return;
+    if (typeof window === "undefined") return;
+    localStorage.setItem("adminPanel.timerStyle", timerStyle);
+    localStorage.setItem("adminPanel.timerLabel", timerLabel);
+    const label = encodeURIComponent(timerLabel.trim() || "Taimeris");
+    const url = `${window.location.origin}/admin/panel/${instanceId}/timer?style=${timerStyle}&label=${label}`;
+    window.open(url, "_blank");
   };
 
   if (!gameController) {
@@ -195,6 +217,30 @@ export const RoundControl = () => {
                 <p className="font-semibold text-slate-100">
                   <RoundCountdown gameController={gameController} />
                 </p>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                  <select
+                    value={timerStyle}
+                    onChange={(event) => setTimerStyle(event.target.value)}
+                    className="h-8 rounded bg-slate-800 border border-slate-700 text-slate-100 text-xs px-2"
+                  >
+                    <option value="classic">Klasisks</option>
+                    <option value="dark">Tumšs</option>
+                    <option value="neon">Neons</option>
+                  </select>
+                  <input
+                    value={timerLabel}
+                    onChange={(event) => setTimerLabel(event.target.value)}
+                    placeholder="Taimeris"
+                    className="h-8 w-32 rounded bg-slate-800 border border-slate-700 text-slate-100 text-xs px-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={openTimerDisplay}
+                    className="h-8 px-3 rounded bg-slate-800 border border-slate-700 text-slate-100 text-xs font-semibold hover:bg-slate-700"
+                  >
+                    Taimeris
+                  </button>
+                </div>
               </div>
               <button
                 disabled={!instance_info.game_started}
