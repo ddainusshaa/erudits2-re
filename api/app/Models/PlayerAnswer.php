@@ -18,6 +18,7 @@ class PlayerAnswer extends Model
         'instance_id',
         'answer_id',
         'answer_text',
+        'answer_text_long',
         'is_answer_correct'
     ];
 
