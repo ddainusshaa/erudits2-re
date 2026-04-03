@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnswerOption } from "./AnswerOption";
 import { usePlayer } from "../../universal/PlayerContext";
 import { SpinnerCircularFixed } from "spinners-react";
@@ -10,6 +10,7 @@ import { constants } from "../../../constants";
 
 export const TestGameView = () => {
   const [viewImage, setViewImage] = useState(false);
+  const hasExpiredRef = useRef(false);
 
   const {
     questions,
@@ -37,6 +38,10 @@ export const TestGameView = () => {
 
   const confirm = useConfirmation();
 
+  useEffect(() => {
+    hasExpiredRef.current = false;
+  }, [countdownTime, round?.id]);
+
   if (!questions[selectedQuestionIndex]) {
     return (
       <div className="flex flex-col gap-4 place-items-center">
@@ -56,9 +61,27 @@ export const TestGameView = () => {
     completed: boolean;
   }) => {
     if (completed) {
-      setRoundFinished(true);
-      setViewImage(false);
-      setSelectedQuestionIndex(0);
+      if (!hasExpiredRef.current) {
+        hasExpiredRef.current = true;
+        const currentQuestion = questions[selectedQuestionIndex];
+        if (currentQuestion) {
+          const answer = selectedAnswers?.get(currentQuestion.id);
+          if (answer !== undefined && answer !== "") {
+            setChangedAnswer(true);
+          }
+        }
+        setRoundFinished(true);
+        setViewImage(false);
+        fetch(`${constants.baseApiUrl}/player-finish-round`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            player_id: playerId,
+          }),
+        }).catch(() => undefined);
+      }
       return (
         <div
           className="text-slate-800 font-semibold lg:text-xl flex place-items-center rounded-mm"
@@ -71,13 +94,26 @@ export const TestGameView = () => {
         </div>
       );
     }
+    const totalSeconds = minutes * 60 + seconds;
+    const isLastTen = totalSeconds <= 10 && totalSeconds > 5;
+    const isLastFive = totalSeconds <= 5;
+    const flashAnimation = isLastFive
+      ? "flash 0.35s linear infinite"
+      : isLastTen
+        ? "flash 0.8s linear infinite"
+        : undefined;
+    const baseOpacity = minutes === 0 && seconds < 11 ? 0.05 * (11 - seconds) : 0;
+    const backgroundColor = isLastTen || isLastFive
+      ? "rgba(255, 0, 0, 0.75)"
+      : `rgba(255, 0, 0, ${baseOpacity})`;
     return (
       <div
-        className="text-slate-800 font-semibold flex place-items-center lg:text-xl rounded-md"
+        className={`font-semibold flex place-items-center lg:text-xl rounded-md ${
+          isLastTen || isLastFive ? "text-white" : "text-slate-800"
+        }`}
         style={{
-          backgroundColor: `rgba(255, 0, 0, ${
-            minutes === 0 && seconds < 11 ? 0.05 * (11 - seconds) : 0
-          })`,
+          backgroundColor,
+          animation: flashAnimation,
         }}
       >
         <i className="fa-regular fa-clock lg:text-xl drop-shadow-lg me-3"></i>
@@ -89,7 +125,13 @@ export const TestGameView = () => {
 
   const finishRound = async () => {
     if (await confirm("Iesniegt atbildes?")) {
-      setSelectedQuestionIndex(selectedQuestionIndex + 1);
+      const currentQuestion = questions[selectedQuestionIndex];
+      if (currentQuestion) {
+        const answer = selectedAnswers?.get(currentQuestion.id);
+        if (answer !== undefined && answer !== "") {
+          setChangedAnswer(true);
+        }
+      }
       setRoundFinished(true);
       await fetch(`${constants.baseApiUrl}/player-finish-round`, {
         method: "POST",
@@ -161,7 +203,7 @@ export const TestGameView = () => {
           className="w-[220px] sm:w-[280px] md:w-[340px] h-auto object-contain"
         />
         <p className="text-slate-800 text-2xl font-semibold">
-          Lūdzu, gaidiet nākamo kārtu!
+          Lūdzu, uzgaidiet līdz visi dalībnieki pabeigs!
         </p>
       </div>
     );
