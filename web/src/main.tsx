@@ -19,6 +19,7 @@ import { ConfirmationProvider } from "./components/universal/ConfirmationWindowC
 import { Lobby } from "./components/player/pages/Lobby.tsx";
 import { Game } from "./components/player/pages/Game.tsx";
 import { Panel } from "./components/admin/pages/panel/Panel.tsx";
+import { TimerDisplay } from "./components/admin/pages/panel/TimerDisplay.tsx";
 import { PlayerLayout } from "./components/player/pages/layouts/PlayerLayout.tsx";
 import { PanelLayout } from "./components/admin/pages/layouts/PanelLayout.tsx";
 import { GameEnd } from "./components/player/pages/GameEnd.tsx";
@@ -108,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: ":instanceId",
         element: <Panel />,
+      },
+      {
+        path: ":instanceId/timer",
+        element: <TimerDisplay />,
       },
       {
         path: "buzzer/:instanceId",
