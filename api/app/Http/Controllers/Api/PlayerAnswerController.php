@@ -89,24 +89,32 @@ class PlayerAnswerController extends Controller
                 $existingPlayerAnswer->delete();
             }
 
+            $answerText = Str::isUuid($request->answer) ? null : $request->answer;
+            $answerTextLong = $answerText;
+            $answerTextShort = $answerText ? Str::limit($answerText, 48, '') : null;
+
             $playerAnswer = [
                 'id' => Str::uuid()->toString(),
                 'player_id' => $validated['player_id'],
                 'question_id' => $validated['question_id'],
                 'instance_id' => $instanceId,
                 'answer_id' => Str::isUuid($request->answer) ? $request->answer : null,
-                'answer_text' => Str::isUuid($request->answer) ? null : $request->answer,
+                'answer_text' => $answerTextShort,
+                'answer_text_long' => $answerTextLong,
                 'is_answer_correct' => $isAnswerCorrect,
             ];
             PlayerAnswer::create($playerAnswer);
 
             if($request->is_tiebreak_answer) {
+                $answerTextForEvent = $playerAnswer['answer_id']
+                    ? Answer::find($playerAnswer['answer_id'])->text
+                    : ($playerAnswer['answer_text_long'] ?? $playerAnswer['answer_text']);
                 broadcast(new TiebreakAnswerEvent(
                     $instanceId,
                     $player->id,
                     $player->player_name,
                     Question::find($playerAnswer['question_id'])->title,
-                    $playerAnswer['answer_id'] ? Answer::find($playerAnswer['answer_id'])->text : $playerAnswer['answer_text'],
+                    $answerTextForEvent,
                     Answer::where('question_id', $playerAnswer['question_id'])->where('is_correct', 1)->first()->text,
                     $isAnswerCorrect,
                     now()->timestamp
@@ -145,11 +153,12 @@ class PlayerAnswerController extends Controller
 
                 foreach ($playerAnswers as $answer) {
                     $answerModel = Answer::find($answer->answer_id);
+                    $answerText = $answer->answer_text_long ?? $answer->answer_text;
 
                     $questions[] = [
                         'id' => $answer->question->id,
                         'title' => $answer->question->title,
-                        'answer' => $answerModel?->text ?? $answer->answer_text,
+                        'answer' => $answerModel?->text ?? $answerText,
                         'is_correct' => $answerModel?->is_correct ?? $answer->is_answer_correct,
                     ];
                 }
