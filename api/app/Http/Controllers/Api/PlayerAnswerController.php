@@ -16,6 +16,7 @@ use Exception;
 use App\Events\RefreshPlayersEvent;
 use App\Events\TiebreakAnswerEvent;
 use App\Models\Question;
+use Illuminate\Support\Facades\Schema;
 
 class PlayerAnswerController extends Controller
 {
@@ -92,6 +93,7 @@ class PlayerAnswerController extends Controller
             $answerText = Str::isUuid($request->answer) ? null : $request->answer;
             $answerTextLong = $answerText;
             $answerTextShort = $answerText ? Str::limit($answerText, 48, '') : null;
+            $hasLongAnswerColumn = Schema::hasColumn('player_answers', 'answer_text_long');
 
             $playerAnswer = [
                 'id' => Str::uuid()->toString(),
@@ -100,9 +102,13 @@ class PlayerAnswerController extends Controller
                 'instance_id' => $instanceId,
                 'answer_id' => Str::isUuid($request->answer) ? $request->answer : null,
                 'answer_text' => $answerTextShort,
-                'answer_text_long' => $answerTextLong,
                 'is_answer_correct' => $isAnswerCorrect,
             ];
+
+            if ($hasLongAnswerColumn) {
+                $playerAnswer['answer_text_long'] = $answerTextLong;
+            }
+
             PlayerAnswer::create($playerAnswer);
 
             if($request->is_tiebreak_answer) {
@@ -125,6 +131,8 @@ class PlayerAnswerController extends Controller
                 $player->round_finished = true;
                 $player->save();
             }
+
+            broadcast(new RefreshPlayersEvent($instanceId, $player));
 
             return response()->json(200);
         }
