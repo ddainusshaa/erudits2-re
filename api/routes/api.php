@@ -28,8 +28,8 @@ use App\Http\Controllers\Api\DeployController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/auth/register', [UserController::class, 'createUser']);
-Route::post('/auth/login', [UserController::class, 'loginUser']);
+Route::post('/auth/register', [UserController::class, 'createUser'])->middleware('throttle:auth');
+Route::post('/auth/login', [UserController::class, 'loginUser'])->middleware('throttle:auth');
 
 Route::post('/join', [GameInstanceController::class, 'join']);
 Route::post('/create-player', [PlayerController::class, 'createPlayer']);
