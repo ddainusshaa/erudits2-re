@@ -91,6 +91,9 @@ export const RoundTable = ({
         );
         playerData.submitted_current_question =
           !!currentAnswer && `${currentAnswer.answer ?? ""}`.trim().length > 0;
+      } else if (instance_info?.is_test) {
+        // In test rounds there is no current question pointer; completion means submitted.
+        playerData.submitted_current_question = !!player.round_finished;
       }
 
       tableQuestions.forEach((question) => {
@@ -99,7 +102,12 @@ export const RoundTable = ({
       });
       return playerData;
     });
-  }, [instance_info?.current_question_id, player_answers, tableQuestions]);
+  }, [
+    instance_info?.current_question_id,
+    instance_info?.is_test,
+    player_answers,
+    tableQuestions,
+  ]);
 
   const submittedNowCount = useMemo(() => {
     return data.filter((row) => row.submitted_current_question).length;
