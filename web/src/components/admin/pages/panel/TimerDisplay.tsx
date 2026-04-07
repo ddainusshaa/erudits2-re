@@ -35,6 +35,18 @@ export const TimerDisplay = () => {
   const { gameController, fetchQuestionInfo, instanceId } = useAdminPanel();
   const [searchParams] = useSearchParams();
 
+  const parseApiDateMs = (value?: string) => {
+    if (!value) return NaN;
+
+    // Laravel may return naive "YYYY-MM-DD HH:mm:ss"; treat it as UTC.
+    const hasTimezone = /([zZ]|[+-]\d{2}:?\d{2})$/.test(value);
+    const normalized = hasTimezone
+      ? value
+      : `${value.replace(" ", "T")}Z`;
+
+    return new Date(normalized).getTime();
+  };
+
   const styleKey = (searchParams.get("style") || "classic").toLowerCase();
   const labelParam = (searchParams.get("label") || "").trim();
   const activeStyle = TIMER_STYLES[styleKey] ?? TIMER_STYLES.classic;
@@ -49,7 +61,7 @@ export const TimerDisplay = () => {
 
     const interval = setInterval(() => {
       fetchQuestionInfo();
-    }, 1500);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [gameController?.instance_info?.game_started, fetchQuestionInfo]);
@@ -63,14 +75,20 @@ export const TimerDisplay = () => {
   const getCountdownDate = () => {
     if (!instanceInfo?.started_at || !instanceInfo?.answer_time) return 0;
 
-    const dateStartedAt = new Date(instanceInfo.started_at);
-    const localTimeOffset = dateStartedAt.getTimezoneOffset() * 60 * 1000;
+    const startedAtMs = parseApiDateMs(instanceInfo.started_at);
+    const parsedServerNowMs = parseApiDateMs(instanceInfo.server_now);
+    const serverNowMs = Number.isNaN(parsedServerNowMs)
+      ? Date.now()
+      : parsedServerNowMs;
 
-    return (
-      dateStartedAt.getTime() -
-      localTimeOffset +
-      instanceInfo.answer_time * 1000
-    );
+    if (Number.isNaN(startedAtMs)) {
+      return 0;
+    }
+
+    const elapsedMs = Math.max(0, serverNowMs - startedAtMs);
+    const remainingMs = Math.max(0, instanceInfo.answer_time * 1000 - elapsedMs);
+
+    return Date.now() + remainingMs;
   };
 
   const renderer = ({
