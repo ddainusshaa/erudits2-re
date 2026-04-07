@@ -24,6 +24,7 @@ export const RoundControl = () => {
     return localStorage.getItem("adminPanel.timerLabel") ?? "Taimeris";
   });
   const showToast = useToast();
+  const instance_info = gameController?.instance_info;
 
   const refresh = async () => {
     setFetchDisabled(true);
@@ -40,14 +41,6 @@ export const RoundControl = () => {
     const url = `${window.location.origin}/admin/panel/${instanceId}/timer?style=${timerStyle}&label=${label}`;
     window.open(url, "_blank");
   };
-
-  if (!gameController) {
-    return (
-      <div className="mx-auto mt-10">
-        <SpinnerCircularFixed size={40} color="#2563eb" thickness={180} />
-      </div>
-    );
-  }
 
   const nextRound = async () => {
     const response = await fetch(`${constants.baseApiUrl}/next-round`, {
@@ -145,10 +138,8 @@ export const RoundControl = () => {
     }
   };
 
-  const { instance_info } = gameController;
-
   useEffect(() => {
-    if (!instance_info.game_started || !instance_info.current_round) {
+    if (!instance_info?.game_started || !instance_info?.current_round) {
       return;
     }
 
@@ -159,10 +150,18 @@ export const RoundControl = () => {
     return () => clearInterval(interval);
   }, [
     fetchQuestionInfo,
-    instance_info.game_started,
-    instance_info.current_round,
-    instance_info.current_question,
+    instance_info?.game_started,
+    instance_info?.current_round,
+    instance_info?.current_question,
   ]);
+
+  if (!gameController || !instance_info) {
+    return (
+      <div className="mx-auto mt-10">
+        <SpinnerCircularFixed size={40} color="#2563eb" thickness={180} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col place-items-center w-full h-full min-h-0 overflow-x-auto admin-scrollbar">
