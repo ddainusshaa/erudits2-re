@@ -36,6 +36,7 @@ interface IInstanceInfo {
   answer_time: number;
   current_round: string;
   started_at: string;
+  server_now?: string;
   game_started: boolean;
   round_questions: IQuestion[];
   disqualify_amount: number;
@@ -136,6 +137,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
   }, [instanceId]);
 
   useEffect(() => {
+    if (!instanceId) return;
     const gameChannel = echo.channel(`game.${instanceId}`);
     const playerChannel = echo.channel(`refresh-players.${instanceId}`);
     const tiebreakAnswerChannel = echo.channel(`tiebreak-answer.${instanceId}`);
@@ -146,6 +148,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
 
     playerChannel.listen(".refresh-players-event", () => {
       fetchPlayers();
+      fetchQuestionInfo();
     });
 
     playerChannel.listen(".player-devtools-event", (data: any) => {
@@ -180,64 +183,79 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
   }, [instanceId]);
 
   const fetchQuestionInfo = async () => {
-    const response = await fetch(
-      `${constants.baseApiUrl}/game-controller-info/${instanceId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(
-            constants.localStorage.TOKEN
-          )}`,
-        },
-      }
-    );
+    if (!instanceId) return;
+    try {
+      const response = await fetch(
+        `${constants.baseApiUrl}/game-controller-info/${instanceId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              constants.localStorage.TOKEN
+            )}`,
+          },
+        }
+      );
 
-    if (response.ok) {
-      const data = await response.json();
-      setGameController(data);
+      if (response.ok) {
+        const data = await response.json();
+        setGameController(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch question info", error);
     }
   };
 
   const fetchPlayers = async () => {
-    const response = await fetch(
-      `${constants.baseApiUrl}/players/${instanceId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(
-            constants.localStorage.TOKEN
-          )}`,
-        },
-      }
-    );
+    if (!instanceId) return;
+    try {
+      const response = await fetch(
+        `${constants.baseApiUrl}/players/${instanceId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              constants.localStorage.TOKEN
+            )}`,
+          },
+        }
+      );
 
-    if (response.ok) {
-      const data = await response.json();
-      setPlayers(data.players);
+      if (response.ok) {
+        const data = await response.json();
+        setPlayers(data.players);
+      }
+    } catch (error) {
+      console.error("Failed to fetch players", error);
     }
   };
 
   const fetchGame = async () => {
-    const response = await fetch(
-      `${constants.baseApiUrl}/instance-game/${instanceId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(
-            constants.localStorage.TOKEN
-          )}`,
-        },
-      }
-    );
+    if (!instanceId) return;
+    try {
+      const response = await fetch(
+        `${constants.baseApiUrl}/instance-game/${instanceId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              constants.localStorage.TOKEN
+            )}`,
+          },
+        }
+      );
 
-    if (response.ok) {
-      const data = await response.json();
-      setInstance(data.instance);
-      setIsBuzzerMode(data.instance.buzzers_mode);
-      setGame(data.game.game);
-      setRounds(data.game.rounds);
-      setQuestions(data.game.questions);
-      return;
+      if (response.ok) {
+        const data = await response.json();
+        setInstance(data.instance);
+        setIsBuzzerMode(data.instance.buzzers_mode);
+        setGame(data.game.game);
+        setRounds(data.game.rounds);
+        setQuestions(data.game.questions);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to fetch game", error);
     }
 
     navigate("/");
