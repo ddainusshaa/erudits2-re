@@ -4,6 +4,7 @@
 #   2) Run: .\add-test-players.ps1
 #   3) Enter game code + count when asked
 
+# $api = "https://erudits-api.dev.rvt.lv/api"
 $api = "http://localhost:8000/api"
 
 $code = Read-Host "Enter active game code (example: ABC123)"
