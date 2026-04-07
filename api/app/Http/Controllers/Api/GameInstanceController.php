@@ -210,6 +210,7 @@ class GameInstanceController extends PlayerAnswerController
                     'current_question_id' => $gameInstance->current_question,
                     'current_question' => optional($round)->is_test ? 'TESTS' : $question,
                     'started_at' => $gameInstance->started_at,
+                    'server_now' => now()->toIso8601String(),
                     'game_started' => $gameInstance->game_started,
                     'round_questions' => $roundQuestions,
                     'disqualify_amount' => optional($round)->disqualify_amount,
