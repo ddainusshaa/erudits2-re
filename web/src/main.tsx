@@ -25,28 +25,34 @@ import { PanelLayout } from "./components/admin/pages/layouts/PanelLayout.tsx";
 import { GameEnd } from "./components/player/pages/GameEnd.tsx";
 import { Disqualified } from "./components/player/pages/Disqualified.tsx";
 import { Buzzer } from "./components/admin/ui/panel/Buzzer.tsx";
+import { AppRouteError } from "./components/universal/AppRouteError.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+    errorElement: <AppRouteError />,
   },
   {
     path: "admin/login",
     element: <AdminLogin />,
+    errorElement: <AppRouteError />,
   },
   {
     path: "admin/register",
     element: <AdminRegister />,
+    errorElement: <AppRouteError />,
   },
   {
     path: "admin/games",
     element: <AdminGames />,
+    errorElement: <AppRouteError />,
   },
 
   {
     path: "admin/games/creator",
     element: <CreatorLayout />,
+    errorElement: <AppRouteError />,
     children: [
       {
         path: "game/:gameId",
@@ -65,6 +71,7 @@ const router = createBrowserRouter([
   {
     path: "admin/games/editor",
     element: <CreatorLayout />,
+    errorElement: <AppRouteError />,
     children: [
       {
         path: "game/:gameId",
@@ -83,6 +90,7 @@ const router = createBrowserRouter([
   {
     path: "play",
     element: <PlayerLayout />,
+    errorElement: <AppRouteError />,
     children: [
       {
         path: "lobby",
@@ -105,6 +113,7 @@ const router = createBrowserRouter([
   {
     path: "admin/panel",
     element: <PanelLayout />,
+    errorElement: <AppRouteError />,
     children: [
       {
         path: ":instanceId",
