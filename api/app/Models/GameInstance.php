@@ -10,6 +10,13 @@ class GameInstance extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $casts = [
+        'started_at' => 'datetime',
+        'game_started' => 'boolean',
+        'private' => 'boolean',
+        'buzzers_mode' => 'boolean',
+    ];
+
     protected $fillable = [
         'id',
         'private',
