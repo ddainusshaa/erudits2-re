@@ -61,14 +61,15 @@ export const Lobby = () => {
     const data = await response.json();
 
     if (response.ok) {
+      const normalizedPlayerName = playerName.trim();
       localStorage.setItem(
         PlayerLocalStorage.currentPlayer,
         JSON.stringify({
           id: data.id,
-          name: data.name,
+          name: normalizedPlayerName,
         })
       );
-      setPlayerName(data.name);
+      setPlayerName(normalizedPlayerName);
       setPlayerId(data.id);
       return true;
     }
