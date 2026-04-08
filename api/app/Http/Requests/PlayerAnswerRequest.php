@@ -25,6 +25,7 @@ class PlayerAnswerRequest extends FormRequest
             'player_id' => 'required|uuid',
             'question_id' => 'required|uuid',
             'round_id' => 'required|uuid',
+            'answer' => 'nullable|string|max:10000',
             'is_tiebreak_answer' => 'boolean'
         ];
     }
