@@ -6,9 +6,10 @@ import { constants } from "../../../../constants";
 import { useToast } from "../../../universal/Toast";
 import { RoundCountdown } from "./RoundCountdown";
 import { localizeError, localizeSuccess } from "../../../../localization";
+import { exportStatsPdf } from "./exportStatsPdf";
 
 export const RoundControl = () => {
-  const { gameController, fetchQuestionInfo, instanceId, instance } =
+  const { gameController, fetchQuestionInfo, instanceId, instance, players, game } =
     useAdminPanel();
   const [fetchDisabled, setFetchDisabled] = useState(false);
   const [timerStyle, setTimerStyle] = useState(() => {
@@ -40,6 +41,20 @@ export const RoundControl = () => {
     const label = encodeURIComponent(timerLabel.trim() || "Taimeris");
     const url = `${window.location.origin}/admin/panel/${instanceId}/timer?style=${timerStyle}&label=${label}`;
     window.open(url, "_blank");
+  };
+
+  const onExportStatsPdf = () => {
+    if (!gameController) {
+      showToast(false, "Nav datu eksportam.");
+      return;
+    }
+
+    exportStatsPdf({
+      gameTitle: game?.title,
+      gameCode: instance?.code,
+      players,
+      gameController,
+    });
   };
 
   const nextRound = async () => {
@@ -177,6 +192,15 @@ export const RoundControl = () => {
           ) : (
             <i className="fa-solid fa-refresh"></i>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={onExportStatsPdf}
+          className="ml-2 h-7 px-3 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-semibold border border-red-500/70"
+          title="Eksportēt spēlētāju statistiku uz PDF"
+        >
+          <i className="fa-solid fa-file-pdf mr-1"></i>
+          PDF atskaite
         </button>
       </div>
       {!!instance_info.game_started && (
