@@ -91,9 +91,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const player = JSON.parse(
       localStorage.getItem(PlayerLocalStorage.currentPlayer) ?? "{}"
     ) as IPlayer;
+    const gameSessionStorage = JSON.parse(
+      localStorage.getItem(PlayerLocalStorage.currentGame) ?? "{}"
+    ) as IGameSessionStorage;
+
     if (player?.id && player.id.length === 36) {
       setPlayerId(player.id);
-      fetchPlayer(player.id);
+      fetchPlayer(player.id, gameSessionStorage?.id);
     }
 
     const storedData = localStorage.getItem(PlayerLocalStorage.answers);
@@ -106,10 +110,26 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const fetchPlayer = async (id: string) => {
+  const fetchPlayer = async (id: string, expectedInstanceId?: string) => {
     const response = await fetch(`${constants.baseApiUrl}/player/${id}`);
     if (response.ok) {
       const data = await response.json();
+
+      const playerInstanceId = data?.player?.instance_id;
+      if (
+        expectedInstanceId &&
+        playerInstanceId &&
+        playerInstanceId !== expectedInstanceId
+      ) {
+        localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+        localStorage.removeItem(PlayerLocalStorage.answers);
+        setPlayerId("");
+        setPlayerName("");
+        setIsReady(false);
+        setRoundFinished(false);
+        setIsDisqualified(false);
+        return;
+      }
 
       setPlayerId(data.player.id);
       setPlayerName(data.player.player_name);
@@ -128,6 +148,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     // Player no longer exists in this instance (e.g. removed by admin).
     if (response.status === 404) {
       localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+      localStorage.removeItem(PlayerLocalStorage.answers);
       setPlayerId("");
       setIsReady(false);
       setGameStarted(false);
@@ -164,7 +185,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
     const interval = setInterval(() => {
       fetchPlayer(playerId);
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [playerId, instanceId, isReady, gameStarted]);
@@ -290,6 +311,26 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [round]);
 
+  useEffect(() => {
+    if (
+      !instanceId ||
+      !gameStarted ||
+      !round ||
+      round.is_test ||
+      isTiebreaking ||
+      currentQuestion
+    ) {
+      return;
+    }
+
+    // Recover from missed realtime "next-question" events.
+    const interval = setInterval(() => {
+      fetchCurrentQuestion();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [instanceId, gameStarted, round, isTiebreaking, currentQuestion]);
+
   const navigate = useNavigate();
 
   const fetchInfo = async () => {
@@ -343,6 +384,12 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       gameChannel.listen(".game-control-event", (data: any) => {
         switch (data.command) {
           case "end":
+            localStorage.removeItem(PlayerLocalStorage.currentGame);
+            localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+            localStorage.removeItem(PlayerLocalStorage.answers);
+            setRound(undefined);
+            setCurrentQuestion(undefined);
+            setAnswers([]);
             setGameStarted(false);
             navigate("/play/end");
             break;
@@ -388,7 +435,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             setIsDisqualified(false);
             break;
           case "ended":
+            localStorage.removeItem(PlayerLocalStorage.currentGame);
             localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+            localStorage.removeItem(PlayerLocalStorage.answers);
             setPlayerId("");
             setIsReady(false);
             setGameStarted(false);
@@ -448,6 +497,19 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
     if (!currentQuestionId) return;
     const answer = selectedAnswers.get(currentQuestionId);
+
+    if (!isTiebreaking && (!answer || `${answer}`.trim().length === 0)) {
+      await fetch(`${constants.baseApiUrl}/player-finish-round`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+        }),
+      });
+      return;
+    }
 
     await fetch(`${constants.baseApiUrl}/player-answers`, {
       method: "POST",
