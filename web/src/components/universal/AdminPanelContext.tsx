@@ -16,7 +16,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ITitleId } from "../admin/interface/ITitleId";
 
 export interface IPlayerAnswer {
+  player_id?: string;
   player_name: string;
+  points?: number;
   questions: IInstanceQuestion[];
   round_finished: boolean;
 }
@@ -128,7 +130,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchGame();
-  }, []);
+  }, [instanceId]);
 
   useEffect(() => {
     if (!instanceId) return;
@@ -176,7 +178,7 @@ export const AdminPanelProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       gameChannel.stopListening(".game-control-event");
-      gameChannel.stopListening(".tiebreak-answer-event");
+      tiebreakAnswerChannel.stopListening(".tiebreak-answer-event");
       playerChannel.stopListening(".refresh-players-event");
       playerChannel.stopListening(".player-devtools-event");
     };
