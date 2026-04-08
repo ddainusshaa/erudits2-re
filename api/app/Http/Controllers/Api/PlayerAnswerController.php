@@ -49,13 +49,33 @@ class PlayerAnswerController extends Controller
 
             $round = Round::find($request->round_id);
 
+            if (!$player || !$round) {
+                return response()->json(['message' => 'Player or round not found.'], 404);
+            }
+
             $instanceId = $player->instance_id;
+
+            $rawAnswer = $request->input('answer');
+            $answerValue = is_string($rawAnswer) ? trim($rawAnswer) : '';
+            $hasAnswer = $answerValue !== '';
+
+            if (!$hasAnswer) {
+                $player->round_finished = true;
+                $player->save();
+                broadcast(new RefreshPlayersEvent($instanceId, $player));
+                return response()->json(['message' => 'No answer submitted.'], 200);
+            }
+
+            $existingPlayerAnswer = PlayerAnswer::where('player_id', $validated['player_id'])
+                ->where('question_id', $validated['question_id'])
+                ->where('instance_id', $instanceId)
+                ->first();
 
             $isAnswerCorrect = false;
 
-            if (!Str::isUuid($request->answer)) {
+            if (!Str::isUuid($answerValue)) {
                 // Normalize the user input answer
-                $normalizedAnswer = preg_replace('/[^\w\s]/', '', preg_replace('/\s+/', ' ', trim($request->answer)));
+                $normalizedAnswer = preg_replace('/[^\w\s]/', '', preg_replace('/\s+/', ' ', $answerValue));
                 
                 // Fetch valid answers and normalize them
                 $validAnswers = Answer::where('question_id', $validated['question_id'])->get()->pluck('text')->toArray();
@@ -70,27 +90,28 @@ class PlayerAnswerController extends Controller
                     $isAnswerCorrect = false;
                 }
             }
-            if(Str::isUuid($request->answer)) {
-                $answer = Answer::find($request->answer);
-                $isAnswerCorrect = $answer->is_correct;
+            if(Str::isUuid($answerValue)) {
+                $answer = Answer::find($answerValue);
+                $isAnswerCorrect = (bool) ($answer?->is_correct);
             }
 
-            if ($isAnswerCorrect && !$player->is_disqualified) {
+            if (!$player->is_disqualified) {
                 $pointsForCorrectAnswer = $round->points;
-                $player->points += $pointsForCorrectAnswer;
-                $player->save();
-            }
+                $previouslyCorrect = $existingPlayerAnswer?->is_answer_correct ? 1 : 0;
+                $currentlyCorrect = $isAnswerCorrect ? 1 : 0;
+                $delta = ($currentlyCorrect - $previouslyCorrect) * $pointsForCorrectAnswer;
 
-            $existingPlayerAnswer = PlayerAnswer::where('player_id', $validated['player_id'])
-                ->where('question_id', $validated['question_id'])
-                ->where('instance_id', $instanceId)
-                ->first();
+                if ($delta !== 0) {
+                    $player->points += $delta;
+                    $player->save();
+                }
+            }
 
             if ($existingPlayerAnswer) {
                 $existingPlayerAnswer->delete();
             }
 
-            $answerText = Str::isUuid($request->answer) ? null : $request->answer;
+            $answerText = Str::isUuid($answerValue) ? null : $answerValue;
             $answerTextLong = $answerText;
             $answerTextShort = $answerText ? Str::limit($answerText, 48, '') : null;
             $hasLongAnswerColumn = Schema::hasColumn('player_answers', 'answer_text_long');
@@ -100,7 +121,7 @@ class PlayerAnswerController extends Controller
                 'player_id' => $validated['player_id'],
                 'question_id' => $validated['question_id'],
                 'instance_id' => $instanceId,
-                'answer_id' => Str::isUuid($request->answer) ? $request->answer : null,
+                'answer_id' => Str::isUuid($answerValue) ? $answerValue : null,
                 'answer_text' => $answerTextShort,
                 'is_answer_correct' => $isAnswerCorrect,
             ];
@@ -113,7 +134,7 @@ class PlayerAnswerController extends Controller
 
             if($request->is_tiebreak_answer) {
                 $answerTextForEvent = $playerAnswer['answer_id']
-                    ? Answer::find($playerAnswer['answer_id'])->text
+                    ? (Answer::find($playerAnswer['answer_id'])?->text ?? '')
                     : ($playerAnswer['answer_text_long'] ?? $playerAnswer['answer_text']);
                 broadcast(new TiebreakAnswerEvent(
                     $instanceId,
@@ -173,7 +194,9 @@ class PlayerAnswerController extends Controller
 
 
                 $results[] = [
+                    'player_id' => $player->id,
                     'player_name' => $player->player_name ?? 'Unknown Player',
+                    'points' => $player->points,
                     'questions' => $questions,
                     'round_finished' => $player->round_finished,
                 ];
