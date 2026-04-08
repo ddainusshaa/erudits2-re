@@ -3,6 +3,8 @@ import { PlayerLocalStorage } from "../enum/PlayerLocalStorage";
 export const GameEnd = () => {
   const exitGame = () => {
     localStorage.removeItem(PlayerLocalStorage.currentGame);
+    localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+    localStorage.removeItem(PlayerLocalStorage.answers);
     window.location.assign("/");
   };
 
