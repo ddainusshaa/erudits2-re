@@ -17,6 +17,7 @@ class PlayerResource extends JsonResource
         return [
             
             'id' => $this->id,
+            'instance_id' => $this->instance_id,
             'player_name' => $this->player_name,
             'is_disqualified' => $this->is_disqualified,
             'round_finished' => $this->round_finished,
