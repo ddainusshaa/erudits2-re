@@ -85,9 +85,9 @@ export const LandingPage = () => {
     }
 
     try {
-      const player = JSON.parse(
-        localStorage.getItem(PlayerLocalStorage.currentPlayer) ?? "{}"
-      ) as IPlayerStorage;
+      // Joining by code should create/reuse session, but not silently reuse stale player identity.
+      localStorage.removeItem(PlayerLocalStorage.currentPlayer);
+      localStorage.removeItem(PlayerLocalStorage.answers);
 
       const response = await fetch(`${constants.baseApiUrl}/join`, {
         method: "POST",
@@ -96,7 +96,6 @@ export const LandingPage = () => {
         },
         body: JSON.stringify({
           code: trimmedCode,
-          player_id: player?.id,
         }),
       });
 
