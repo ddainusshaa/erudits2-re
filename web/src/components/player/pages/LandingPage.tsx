@@ -5,11 +5,6 @@ import { constants } from "../../../constants";
 import { PlayerLocalStorage } from "../enum/PlayerLocalStorage";
 import { IGameSessionStorage } from "../interface/IGameSessionStorage";
 
-interface IPlayerStorage {
-  id?: string;
-  name?: string;
-}
-
 export const LandingPage = () => {
   const accentMagenta = "#E812FF";
   const accentGreen = "#0F9A09";
