@@ -107,6 +107,7 @@ class PlayerController extends Controller
         if($player) {
             $player->round_finished = true;
             $player->save();
+            broadcast(new RefreshPlayersEvent($player->instance_id, $player));
             return response()->json(['message' => 'Player round finished.'], 200);
         }
         return response()->json(['error' => 'Player not found.'], 404);
