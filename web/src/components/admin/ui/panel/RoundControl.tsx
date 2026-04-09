@@ -153,6 +153,31 @@ export const RoundControl = () => {
     }
   };
 
+  const stopRound = async () => {
+    const response = await fetch(`${constants.baseApiUrl}/game-control`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem(
+          constants.localStorage.TOKEN
+        )}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        command: "stop-round",
+        instance_id: instanceId,
+      }),
+    });
+
+    if (response.ok) {
+      showToast(true, "Kārta apturēta");
+      fetchQuestionInfo();
+      return;
+    }
+
+    const data = await response.json();
+    showToast(false, localizeError(data.message || data.error));
+  };
+
   useEffect(() => {
     if (!instance_info?.game_started || !instance_info?.current_round) {
       return;
@@ -234,6 +259,19 @@ export const RoundControl = () => {
                 <p className="font-semibold text-slate-100 text-lg">
                   {instance_info.current_round ?? "-"}
                 </p>
+                <button
+                  type="button"
+                  onClick={stopRound}
+                  disabled={!instance_info.game_started || !instance_info.current_round}
+                  className={`mt-2 h-8 px-3 rounded text-xs font-semibold border ${
+                    !instance_info.game_started || !instance_info.current_round
+                      ? "bg-slate-700 text-slate-400 border-slate-600"
+                      : "bg-rose-700 hover:bg-rose-600 text-white border-rose-500/70"
+                  }`}
+                  title="Ārkārtas apturēšana visiem spēlētājiem"
+                >
+                  Apturēt kārtu
+                </button>
               </div>
               <div className="bg-slate-900 border border-slate-700 flex-col flex place-items-center px-4 py-1 rounded shadow-sm min-w-[180px]">
                 <p className="text-xs text-slate-400">Atlikušais laiks</p>

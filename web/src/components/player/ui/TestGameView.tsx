@@ -12,6 +12,17 @@ export const TestGameView = () => {
   const [viewImage, setViewImage] = useState(false);
   const hasExpiredRef = useRef(false);
 
+  const parseApiDateMs = (value?: string) => {
+    if (!value) return NaN;
+
+    const hasTimezone = /([zZ]|[+-]\d{2}:?\d{2})$/.test(value);
+    const normalized = hasTimezone
+      ? value
+      : `${value.replace(" ", "T")}Z`;
+
+    return new Date(normalized).getTime();
+  };
+
   const {
     questions,
     answers,
@@ -79,6 +90,7 @@ export const TestGameView = () => {
           },
           body: JSON.stringify({
             player_id: playerId,
+            round_id: round?.id,
           }),
         }).catch(() => undefined);
       }
@@ -140,6 +152,7 @@ export const TestGameView = () => {
         },
         body: JSON.stringify({
           player_id: playerId,
+          round_id: round?.id,
         }),
       });
     }
@@ -212,10 +225,12 @@ export const TestGameView = () => {
   const getCountdownDate = () => {
     if (!countdownTime || !round?.answer_time) return 0;
 
-    const dateStartedAt = new Date(countdownTime);
-    const localTimeOffset = dateStartedAt.getTimezoneOffset() * 60 * 1000;
+    const startedAtMs = parseApiDateMs(countdownTime);
+    if (Number.isNaN(startedAtMs)) {
+      return 0;
+    }
 
-    return dateStartedAt.getTime() - localTimeOffset + round.answer_time * 1000;
+    return startedAtMs + round.answer_time * 1000;
   };
 
   return (

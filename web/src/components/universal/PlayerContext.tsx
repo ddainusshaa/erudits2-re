@@ -87,6 +87,22 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(true);
   const devtoolsStateRef = useRef({ isOpen: false, lastSentAt: 0 });
 
+  const normalizeApiDateToIso = (value?: string) => {
+    if (!value) return undefined;
+
+    const hasTimezone = /([zZ]|[+-]\d{2}:?\d{2})$/.test(value);
+    const normalized = hasTimezone
+      ? value
+      : `${value.replace(" ", "T")}Z`;
+    const timestamp = new Date(normalized).getTime();
+
+    if (Number.isNaN(timestamp)) {
+      return undefined;
+    }
+
+    return new Date(timestamp).toISOString();
+  };
+
   useEffect(() => {
     const player = JSON.parse(
       localStorage.getItem(PlayerLocalStorage.currentPlayer) ?? "{}"
@@ -366,13 +382,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     if (response.ok) {
       const data = await response.json();
       setCurrentQuestion(data.question);
-      //fuck. this.
-      setCountdownTime(
-        new Date(
-          new Date(data.started_at).getTime() -
-            new Date().getTimezoneOffset() * 60000
-        ).toISOString()
-      );
+      const normalizedStartedAt = normalizeApiDateToIso(data.started_at);
+      if (normalizedStartedAt) {
+        setCountdownTime(normalizedStartedAt);
+      }
     }
   };
 
@@ -404,6 +417,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
           case "next-round":
           case "previous-round":
             setRoundFinished(false);
+            setCurrentQuestion(undefined);
+            setAnswers([]);
+            setCountdownTime(undefined);
             fetchInfo();
             setRound(data.currentRound);
             break;
@@ -414,6 +430,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             setCurrentQuestion(data.currentQuestion);
             setAnswers(data.currentQuestion.answers);
             setCountdownTime(new Date(Date.now()).toISOString());
+            break;
+          case "stop-round":
+            setChangedAnswer(false);
+            setRoundFinished(true);
             break;
           case "buzzers-start":
             setIsBuzzerMode(true);
@@ -506,6 +526,8 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         },
         body: JSON.stringify({
           player_id: playerId,
+          round_id: round?.id,
+          question_id: currentQuestionId,
         }),
       });
       return;

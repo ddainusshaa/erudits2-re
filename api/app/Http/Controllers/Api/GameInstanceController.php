@@ -312,9 +312,7 @@ class GameInstanceController extends PlayerAnswerController
         
                 $this->clearFinishedPlayers($gameInstance->id);
 
-                if($nextRound->is_test){
-                    broadcast(new GameControlEvent($gameInstance->id, 'next-round', $nextRound));
-                }
+                broadcast(new GameControlEvent($gameInstance->id, 'next-round', $nextRound));
         
                 return response()->json(['message' => 'Next round started.'], 200);
             }
@@ -342,14 +340,13 @@ class GameInstanceController extends PlayerAnswerController
             if ($previousRound) {
                 $gameInstance->current_round = $previousRound->id;
                 $gameInstance->current_question = null;
+                $gameInstance->started_at = null;
                 if($previousRound->is_test) {
                     $gameInstance->started_at = now();
                 }
                 $gameInstance->save();
-                
-                if($previousRound->is_test){
-                    broadcast(new GameControlEvent($gameInstance->id, 'previous-round',  $previousRound));
-                }
+
+                broadcast(new GameControlEvent($gameInstance->id, 'previous-round',  $previousRound));
                 $this->clearFinishedPlayers($gameInstance->id);
 
                 return response()->json(['message' => 'Previous round started.'], 200);
@@ -506,9 +503,18 @@ class GameInstanceController extends PlayerAnswerController
                 $roundId = Round::where('game_id', $gameId)->where('order', 1)->value('id');
 
                 GameInstance::where('id', $instanceId)->update(['game_started' => true]);
-            } else {
+            } elseif($command == 'end') {
                 GameInstance::where('id', $instanceId)->update(['end_date' => now(), 'started_at' => null, 'game_started' => false]);
-            } 
+            } elseif($command == 'stop-round') {
+                $gameInstance = GameInstance::findOrFail($instanceId);
+                $gameInstance->started_at = null;
+                $gameInstance->save();
+
+                Player::where('instance_id', $instanceId)
+                    ->update(['round_finished' => true]);
+            } else {
+                return response()->json(['error' => 'Invalid game control command'], 400);
+            }
 
             broadcast(new GameControlEvent($instanceId, $command));
 

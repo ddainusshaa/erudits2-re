@@ -103,8 +103,35 @@ class PlayerController extends Controller
     }
 
     public function finishRound(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'player_id' => 'required|uuid',
+            'round_id' => 'nullable|uuid',
+            'question_id' => 'nullable|uuid',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Invalid payload.'], 400);
+        }
+
         $player = Player::find($request->player_id);
         if($player) {
+            $instance = GameInstance::find($player->instance_id);
+            if (!$instance) {
+                return response()->json(['error' => 'Game instance not found.'], 404);
+            }
+
+            if ($request->filled('round_id')) {
+                if ((string) $instance->current_round !== (string) $request->round_id) {
+                    return response()->json(['message' => 'Ignoring stale round finish.'], 200);
+                }
+            }
+
+            if ($request->filled('question_id') && $instance->current_question) {
+                if ((string) $instance->current_question !== (string) $request->question_id) {
+                    return response()->json(['message' => 'Ignoring stale question finish.'], 200);
+                }
+            }
+
             $player->round_finished = true;
             $player->save();
             broadcast(new RefreshPlayersEvent($player->instance_id, $player));

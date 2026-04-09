@@ -17,6 +17,7 @@ use App\Events\RefreshPlayersEvent;
 use App\Events\TiebreakAnswerEvent;
 use App\Models\Question;
 use Illuminate\Support\Facades\Schema;
+use App\Models\GameInstance;
 
 class PlayerAnswerController extends Controller
 {
@@ -48,12 +49,30 @@ class PlayerAnswerController extends Controller
             $player = Player::find($validated['player_id']);
 
             $round = Round::find($request->round_id);
+            $isTiebreakAnswer = $request->boolean('is_tiebreak_answer');
 
             if (!$player || !$round) {
                 return response()->json(['message' => 'Player or round not found.'], 404);
             }
 
             $instanceId = $player->instance_id;
+            $instance = GameInstance::find($instanceId);
+
+            if (!$instance) {
+                return response()->json(['message' => 'Game instance not found.'], 404);
+            }
+
+            if (!$isTiebreakAnswer && (string) $instance->current_round !== (string) $round->id) {
+                Log::info('Ignoring stale player answer for player ' . $validated['player_id'] . ' in instance ' . $instanceId);
+                return response()->json(['message' => 'Stale answer ignored.'], 200);
+            }
+
+            if (!$isTiebreakAnswer && !$round->is_test && $instance->current_question) {
+                if ((string) $instance->current_question !== (string) $validated['question_id']) {
+                    Log::info('Ignoring stale player answer question for player ' . $validated['player_id'] . ' in instance ' . $instanceId);
+                    return response()->json(['message' => 'Stale answer ignored.'], 200);
+                }
+            }
 
             $rawAnswer = $request->input('answer');
             $answerValue = is_string($rawAnswer) ? trim($rawAnswer) : '';
@@ -132,7 +151,7 @@ class PlayerAnswerController extends Controller
 
             PlayerAnswer::create($playerAnswer);
 
-            if($request->is_tiebreak_answer) {
+            if($isTiebreakAnswer) {
                 $answerTextForEvent = $playerAnswer['answer_id']
                     ? (Answer::find($playerAnswer['answer_id'])?->text ?? '')
                     : ($playerAnswer['answer_text_long'] ?? $playerAnswer['answer_text']);
